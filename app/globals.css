@@ -1,0 +1,298 @@
+@import "tailwindcss";
+
+:root {
+    --background: #ffffff;
+    --foreground: #171717;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #ffffff;
+        --foreground: #171717;
+    }
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+
+html {
+    background: #F9FAFB;
+}
+
+.gif-hide-placeholder{
+    background-color: #DEDEDE;
+}
+
+.movie_title_logo .title {
+    text-shadow: 2px 2px 4px black;
+    color: #ff2439;
+    text-transform: uppercase;
+    font-size: 2.2rem;
+    text-align: center;
+    font-family: "Pacifico", cursive;
+    font-weight: 700;
+}
+
+.movie_title_logo .slug {
+    text-shadow: 1px 0px 1px black;
+    color: #26ced6;
+    text-transform: uppercase;
+    font-size: 12px;
+    text-align: center;
+    font-family: "Momo Trust Display", sans-serif;
+    font-weight: 400;
+}
+
+
+
+
+.movie_search_bar input {
+    width: 100%;
+    max-width: 28rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 2px solid #f3f4f6;
+    outline: none;
+    color: #1f2937;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.movie_search_bar input:focus {
+    border-color: #BE3144;
+    box-shadow: 0 0 0 2px #BE3144;
+}
+
+
+.filter_series_container {
+    height: auto;
+    padding: 5px;
+    width: 30rem;
+    margin: auto;
+    display: ruby-text;
+}
+
+
+
+
+.filter_series_container .seemoreBtn {
+    background-color: #b32e60;
+}
+
+
+.filter_series_container button {
+    height: auto;
+    color: #ffffff;
+    font-family: "Roboto", sans-serif;
+    font-size: 12px;
+    width: auto;
+    font-weight: 500;
+    padding: 2px 10px;
+}
+
+.movieTypeTitle {
+    color: #ffffff;
+    background-color: #b32e60;
+    /* background-color: #26ced6; */
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 0.3rem;
+}
+
+.filter_series_container .filterBtn.active {
+    background-color: #0e4b59;
+}
+
+.filter_series_container .seemoreBtn.active {
+    background-color: #670D2F;
+}
+
+.font-pacifico {
+    font-family: "Pacifico", cursive;
+}
+
+.font-oswald {
+    font-family: "Oswald", sans-serif;
+}
+
+
+.selected-card {
+    border-radius: 16px;
+    margin: 10px;
+    width: 13rem;
+    height: 16.3rem;
+}
+
+
+/* media tag devices:start */
+@media screen and (min-width: 320px) and (max-width: 480px) {
+    .selected-card {
+        margin: 1rem;
+        width: 11rem;
+        height: 16rem;
+    }
+
+    .selected-card img {
+        width: -webkit-fill-available;
+        height: 13rem;
+    }
+}
+
+/* The Card Container */
+.movie-card-empty {
+    width: 250px;
+    height: 350px;
+    background-color: #1a1b1e;
+    border: 2px solid #6c757d;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+    margin-top: 2rem;
+}
+
+
+
+/* The Icon Area */
+.icon-container {
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+
+.icon-container svg {
+    width: 80px;
+    height: 80px;
+    fill: none;
+    stroke: #8b95a1;
+    /* Greyish blue color for icon */
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Text Styling */
+.movie-card-empty h3 {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.movie-card-empty p {
+    color: #b0b0b0;
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.selected-card .playBtn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 50%;
+    padding: 10px 15px;
+    cursor: pointer;
+    display: none;
+    transition: all 2s ease-in-out;
+}
+
+.selected-card:hover .playBtn {
+    display: block;
+}
+
+.viewAllBtn i {
+    transition: transform 0.3s ease;
+}
+
+.viewAllBtn.active i {
+    transform: rotate(90deg);
+}
+
+.loading-dots::after {
+    content: ' .';
+    animation: dots 1.5s steps(5, end) infinite;
+}
+
+
+
+
+
+
+
+@keyframes skeleton-glow {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .5;
+    }
+}
+
+.animate-pulse {
+    animation: skeleton-glow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes bounce-up-down {
+
+    0%,
+    80%,
+    100% {
+        transform: translateY(0);
+        scale: 0.9;
+    }
+
+    40% {
+        transform: translateY(-10px);
+        scale: 1.1;
+        color: #ff0000;
+    }
+}
+
+.dot-bounce {
+    display: inline-block;
+    animation: bounce-up-down 1.4s infinite ease-in-out both;
+    font-size: 18px;
+    line-height: 0;
+}
+
+.dot-1 {
+    animation-delay: -0.32s;
+}
+
+.dot-2 {
+    animation-delay: -0.16s;
+}
+
+@media screen and (min-width: 481px) and (max-width: 768px) {}
+
+@media only screen and (min-width: 768px) {}
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {}
+
+@media screen and (min-width: 1025px) and (max-width: 1200px) {}
+
+@media screen and (min-width: 1201px) {}
