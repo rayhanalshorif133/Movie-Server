@@ -8,14 +8,11 @@ import Link from 'next/link';
 import VisualBadge from '@/components/common/VisualBadge';
 import Swal from 'sweetalert2'
 import { deleteFileFromGoogleDrive, getGoogleDriveFileUrl, getGoogleDriveImageUrl } from '@/utils/google/manage';
-import { FaGoogleDrive } from "react-icons/fa";
-import Image from 'next/image';
-
-
 
 export default function MovieRow({ movie }) {
 
     const formatDate = (dateString) => {
+        if (!dateString) return 'Recent';
         return new Date(dateString).toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'short',
@@ -23,9 +20,7 @@ export default function MovieRow({ movie }) {
         });
     };
 
-
     const handleDeleteMovieBtn = (movieId) => {
-
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -42,7 +37,6 @@ export default function MovieRow({ movie }) {
                 })
                     .then(response => response.json())
                     .then(data => {
-                        console.log(data);
                         if (data.error) {
                             Swal.fire({
                                 title: "Error!",
@@ -58,7 +52,6 @@ export default function MovieRow({ movie }) {
                             }).then(() => {
                                 window.location.reload();
                             });
-
                         }
                     })
                     .catch(error => {
@@ -73,18 +66,26 @@ export default function MovieRow({ movie }) {
         });
     }
 
+    const driveUrl = getGoogleDriveFileUrl(movie.url || movie.file_id) || '#';
+
     return (
         <tr className="group border-b border-gray-100 hover:bg-blue-50/30 transition-all duration-200">
             <td className="px-6 py-4">
                 <div className="flex items-center gap-4">
-                    <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-100 shadow-sm group-hover:shadow-md transition-shadow">
+                    <Link
+                        href={getGoogleDriveFileUrl(movie.poster)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Open poster in Google Drive"
+                        className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-100 shadow-sm group-hover:shadow-md transition-shadow block cursor-pointer"
+                    >
                         <img
                             src={getGoogleDriveImageUrl(movie.poster)}
-                            alt={movie.title}
+                            alt={movie.title || 'Movie'}
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                         <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
-                    </div>
+                    </Link>
                 </div>
             </td>
             <td className="px-6 py-4">
@@ -93,30 +94,28 @@ export default function MovieRow({ movie }) {
                         {movie.title}  <TypeBadge type={movie.type} />
                     </span>
                     <div className='flex space-x-2'>
-                        <Badge title={movie.part_name} />
+                        <Badge title={movie.part_name || 'Full Movie'} />
                         <Link
-                            href={getGoogleDriveFileUrl(movie.url)}
+                            href={driveUrl}
                             target='_blank'
                             rel='noopener noreferrer'
                         >
                             <VisualBadge title={'View'} />
                         </Link>
-
                     </div>
-
                 </div>
             </td>
 
             {/* Technical Specs */}
             <td className="px-6 py-4">
                 <div className="flex flex-col gap-2">
-                    <DBBadge sourceGmailName={movie.movie_source} movieSize={movie.size} />
+                    <DBBadge sourceGmailName={movie.movie_source || 'drive01@gmail.com'} movieSize={movie.size || '1500'} />
                 </div>
             </td>
 
             <td className="px-6 py-4">
                 <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-700">{movie.dubbed_lang}</span>
+                    <span className="text-sm font-medium text-gray-700">{movie.dubbed_lang || 'N/A'}</span>
                 </div>
             </td>
 

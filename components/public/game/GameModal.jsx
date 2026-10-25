@@ -2,17 +2,20 @@
 import React, { useState } from "react";
 import { RxCross2, RxDownload } from "react-icons/rx";
 import { FaChevronRight, FaChevronLeft } from "react-icons/fa";
-import { getGoogleDriveImageUrl, googleDriveToDownload } from "@/utils/google/manage";
+import { getGoogleDriveImageUrl, getGoogleDriveFileUrl, googleDriveToDownload } from "@/utils/google/manage";
 
 export default function GameModal({ game, onClose }) {
-    const images = JSON.parse(game.asset_images || "[]");
-    const gifs = JSON.parse(game.asset_gif_images || "[]");
+    const images = Array.isArray(game.asset_images)
+        ? game.asset_images
+        : (() => { try { return JSON.parse(game.asset_images || "[]"); } catch { return []; } })();
+    const gifs = Array.isArray(game.asset_gif_images)
+        ? game.asset_gif_images
+        : (() => { try { return JSON.parse(game.asset_gif_images || "[]"); } catch { return []; } })();
     const isGifHiddenBar =  game.hidden_bar_gif || false;
     const allMedia = [...images, ...gifs];
     const [isSelectedGif, setIsSelectedGif] = useState(false);
 
     const [selectedIndex, setSelectedIndex] = useState(null);
-
 
     const closeLightbox = () => setSelectedIndex(null);
 
@@ -20,7 +23,6 @@ export default function GameModal({ game, onClose }) {
         setSelectedIndex(newIndex);
         const isGif = gifs.includes(allMedia[newIndex]);
         setIsSelectedGif(isGif);
-
     };
 
     const initialSetIndex = (index) => updateIndex(index);
@@ -34,9 +36,6 @@ export default function GameModal({ game, onClose }) {
         const prevIdx = selectedIndex === 0 ? allMedia.length - 1 : selectedIndex - 1;
         updateIndex(prevIdx);
     };
-
-
-
 
     return (
         <>
@@ -59,7 +58,7 @@ export default function GameModal({ game, onClose }) {
 
                             <button
                                 onClick={() => { googleDriveToDownload(game.url) }}
-                                className="relative  cursor-pointer group h-10 w-fit overflow-hidden rounded-xl p-0.5 transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(37,99,235,0.3)] mr-10"
+                                className="relative cursor-pointer group h-10 w-fit overflow-hidden rounded-xl p-0.5 transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(37,99,235,0.3)] mr-10"
                             >
                                 <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#3b82f6_0%,#a855f7_50%,#3b82f6_100%)] group-hover:opacity-100 opacity-40 transition-opacity"></div>
                                 <div className="relative flex h-full w-full items-center justify-center gap-3 rounded-[10px] bg-slate-900 px-7 py-2 text-white transition-all duration-300 group-hover:bg-slate-900/80 backdrop-blur-xl">
@@ -70,7 +69,6 @@ export default function GameModal({ game, onClose }) {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             {allMedia.map((mediaId, index) => {
-
                                 const isGif = gifs.includes(mediaId);
 
                                 return (
@@ -92,7 +90,6 @@ export default function GameModal({ game, onClose }) {
                                                     GIF 
                                                 </div>
                                                 { isGifHiddenBar && <div className="absolute bottom-0 h-10 w-full gif-hide-placeholder"></div> }
-                                                
                                             </>
                                         )}
                                     </div>
@@ -123,17 +120,16 @@ export default function GameModal({ game, onClose }) {
                         <FaChevronLeft className="p-2" />
                     </button>
 
-                    <div className="relative">
+                    <div className="relative flex flex-col items-center">
+                        <a href={getGoogleDriveFileUrl(allMedia[selectedIndex])} target="_blank" rel="noopener noreferrer" className="mb-2 px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-full text-xs font-semibold transition">Open in Google Drive ↗</a>
                         <img
                             src={getGoogleDriveImageUrl(allMedia[selectedIndex])}
                             className="max-h-[85vh] max-w-[90vw] object-contain"
                             alt=""
                         />
 
-                        <div className={`absolute bottom-0 h-[20%]  w-full gif-hide-placeholder ${isSelectedGif ? 'opacity-100' : 'opacity-0'}`}></div>
-
+                        <div className={`absolute bottom-0 h-[20%] w-full gif-hide-placeholder ${isSelectedGif ? 'opacity-100' : 'opacity-0'}`}></div>
                     </div>
-
 
                     {/* Next */}
                     <button

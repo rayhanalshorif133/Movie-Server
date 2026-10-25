@@ -1,6 +1,6 @@
 import { login } from './actions'
 
-export default async function  LoginPage({ searchParams }) {
+export default async function LoginPage({ searchParams }) {
   const params = await searchParams;
   const errorMessage = params?.error;
 
@@ -22,7 +22,7 @@ export default async function  LoginPage({ searchParams }) {
             name="email"
             type="email"
             placeholder="Enter your gmail"
-            value={'rayhan@gmail.com'}
+            defaultValue={'rayhan@gmail.com'}
             required
           />
         </div>
@@ -34,13 +34,14 @@ export default async function  LoginPage({ searchParams }) {
             name="password"
             type="password"
             placeholder="••••••••"
+            defaultValue={'admin123'}
             required
           />
         </div>
 
         <button
           formAction={login}
-          className="p-3 mt-4 font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-200"
+          className="p-3 mt-4 font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-200 cursor-pointer"
         >
           Sign In
         </button>

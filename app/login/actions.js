@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export async function login(formData) {
@@ -18,16 +19,22 @@ export async function login(formData) {
     return redirect('/login?error=' + encodeURIComponent(error.message))
   }
 
+  const cookieStore = await cookies()
+  cookieStore.set('dummy_auth_token', 'mock_admin_token', {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+  })
+
   redirect('/admin/dashboard')
 }
 
-
 export async function logout() {
   const supabase = await createClient()
-  const { error } = await supabase.auth.signOut()
+  await supabase.auth.signOut()
 
-  if (error) {
-    console.log('Error logging out:', error.message)
-  }
+  const cookieStore = await cookies()
+  cookieStore.delete('dummy_auth_token')
+
   redirect('/login')
 }

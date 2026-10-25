@@ -1,4 +1,4 @@
-import { getGoogleDriveImageUrl, getGoogleDrivePreviewUrl, googleDriveToDownload } from "@/utils/google/manage";
+import { getGoogleDriveImageUrl, getGoogleDrivePreviewUrl, getGoogleDriveFileUrl, googleDriveToDownload } from "@/utils/google/manage";
 import Image from "next/image";
 import { useState } from "react";
 import { RxCross2, RxArrowLeft, RxDownload, RxShare1 } from "react-icons/rx";
@@ -75,7 +75,7 @@ export default function MovieDetailsModal({ movie, onClose }) {
                     {!isPreviewing ? (
                         <>
                             <div className="w-full md:w-1/2 h-64 md:h-auto relative">
-                                <div className="relative aspect-2/3 w-full">
+                                <a href={getGoogleDriveFileUrl(movie.poster)} target="_blank" rel="noopener noreferrer" title="Open poster in Google Drive" className="block relative aspect-2/3 w-full cursor-pointer hover:opacity-90 transition">
                                     <Image
                                         src={getGoogleDriveImageUrl(movie.poster)}
                                         alt={movie.title || "Movie Poster"}
@@ -84,7 +84,7 @@ export default function MovieDetailsModal({ movie, onClose }) {
                                         className="object-cover rounded-lg"
                                         priority={true}
                                     />
-                                </div>
+                                </a>
                             </div>
                             <div className="p-8 md:w-1/2 flex flex-col justify-center">
                                 <h2 className="text-3xl font-bold text-white">{movie.title}</h2>

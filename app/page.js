@@ -1,6 +1,7 @@
 import Header from "@/components/public/Header";
 import MovieManager from "@/components/public/movie/MovieManager";
 import { createClient } from '@/utils/supabase/server';
+import { dummyMovies } from '@/utils/dummyData';
 
 export async function generateMetadata() {
   return {
@@ -17,7 +18,7 @@ export default async function Home() {
     <div className="flex flex-col bg-slate-900 min-h-screen font-sans">
       <Header />
       <main className="grow max-w-7xl mx-auto px-4 py-10">
-        <MovieManager initialMovies={initialMovies || []} />
+        <MovieManager initialMovies={initialMovies?.length ? initialMovies : dummyMovies} />
       </main>
     </div>
   );

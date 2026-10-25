@@ -1,4 +1,3 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
 export async function proxy(request) {
@@ -6,36 +5,19 @@ export async function proxy(request) {
         request: { headers: request.headers },
     })
 
-    const supabase = createServerClient(
-        process.env.NEXT_SUPABASE_URL,
-        process.env.NEXT_SUPABASE_ANON_KEY,
-        {
-            cookies: {
-                getAll: () => request.cookies.getAll(),
-                setAll: (cookiesToSet) => {
-                    cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value, options))
-                    response = NextResponse.next({ request })
-                    cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
-                },
-            },
-        }
-    )
+    const dummyToken = request.cookies.get('dummy_auth_token')?.value;
+    const isLoggedIn = Boolean(dummyToken);
 
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (user && request.nextUrl.pathname.startsWith('/login') ) {
+    if (isLoggedIn && request.nextUrl.pathname.startsWith('/login')) {
         return NextResponse.redirect(new URL('/admin/dashboard', request.url))
     }
 
-    if (!user && request.nextUrl.pathname.startsWith('/admin/dashboard')) {
+    if (!isLoggedIn && request.nextUrl.pathname.startsWith('/admin')) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
-
-    return response
+    return response;
 }
-
-
 
 export const config = {
   matcher: ['/login', '/admin/:path*'],

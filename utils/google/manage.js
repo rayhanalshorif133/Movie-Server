@@ -1,12 +1,9 @@
-
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBitNkcvoaAK7KFPo2dXZxh9WEeIlRaK1HwZOClAvtNmtUS7p1U7JYqJmnAcWKvNumRw/exec";
 const SCRIPT_URL_DELETE = "https://script.google.com/macros/s/AKfycbzzk_p0ysLCF7SA6yUp6PZO5k62VufN5ER88mj0wd9QhT-iCZPtWo4QGguzZMTq35aUxw/exec";
-
 
 export async function uploadImageInGoogleDrive(file) {
   if (!file) return null;
 
-  // ১. ফাইলটিকে Base64 এ রূপান্তর
   const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -28,7 +25,7 @@ export async function uploadImageInGoogleDrive(file) {
     const response = await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'text/plain;charset=utf-8', // Apps Script POST রিকোয়েস্টের জন্য অনেক সময় এটি লাগে
+        'Content-Type': 'text/plain;charset=utf-8',
       },
       body: JSON.stringify(payload),
     });
@@ -48,7 +45,6 @@ export function getFileType(file) {
   const typeFromName = file.name.split('.').pop().toLowerCase();
   return file.type ? typeFromMime : typeFromName;
 };
-
 
 export async function deleteFileFromGoogleDrive(fileId) {
   if (!fileId) return null;
@@ -82,33 +78,63 @@ export async function deleteFileFromGoogleDrive(fileId) {
   }
 }
 
-export function getGoogleDriveFileUrl(fileId) {
-  if (!fileId) return null;
-  if (fileId.includes("view")) {
-    return fileId;
+export function extractGoogleDriveFileId(input) {
+  if (!input || typeof input !== "string") return "";
+  const trimmed = input.trim();
+  if (trimmed === "#" || trimmed === "") return "";
+
+  // If already clean ID (no slashes, no query params)
+  if (!trimmed.includes("/") && !trimmed.includes("?") && !trimmed.includes("&")) {
+    return trimmed;
   }
-  return `https://drive.google.com/file/d/${fileId}/view`;
+
+  // /file/d/{id}
+  const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileDMatch && fileDMatch[1]) return fileDMatch[1];
+
+  // ?id={id} or &id={id}
+  const idParamMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idParamMatch && idParamMatch[1]) return idParamMatch[1];
+
+  // /d/{id} (e.g. lh3.googleusercontent.com/d/{id})
+  const dMatch = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (dMatch && dMatch[1]) return dMatch[1];
+
+  return trimmed;
+}
+
+export function getGoogleDriveFileUrl(fileId) {
+  if (!fileId) return "#";
+  const id = extractGoogleDriveFileId(fileId);
+  if (!id) return "#";
+  return `https://drive.google.com/file/d/${id}/view`;
 }
 
 export function getGoogleDriveImageUrl(fileId) {
+  if (!fileId) return "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800";
+  const id = extractGoogleDriveFileId(fileId);
+  if (!id) return "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800";
 
-  if (!fileId) return null;
-  return `https://lh3.googleusercontent.com/d/${fileId}`;
+  // If it's a non-Google full URL (e.g. unsplash or external CDN), keep it
+  if (typeof fileId === "string" && fileId.startsWith("http") && !fileId.includes("drive.google.com") && !fileId.includes("googleusercontent.com")) {
+    return fileId;
+  }
+
+  return `https://lh3.googleusercontent.com/d/${id}`;
 }
 
 export function getGoogleDrivePreviewUrl(fileId) {
-  if (!fileId) return null;
-
-  if (fileId.includes("view")) {
-    return fileId.replace("/view", "/preview");
-  }
-
-  return `https://drive.google.com/file/d/${fileId}/preview`;
+  if (!fileId) return "#";
+  const id = extractGoogleDriveFileId(fileId);
+  if (!id) return "#";
+  return `https://drive.google.com/file/d/${id}/preview`;
 }
 
 export function getGoogleDriveDownloadUrl(fileId) {
-  if (!fileId) return null;
-  return `https://drive.google.com/uc?export=download&id=${fileId}`;
+  if (!fileId) return "#";
+  const id = extractGoogleDriveFileId(fileId);
+  if (!id) return "#";
+  return `https://drive.google.com/uc?export=download&id=${id}`;
 }
 
 export function daysAgoCalculate(date) {
@@ -121,8 +147,9 @@ export function daysAgoCalculate(date) {
 };
 
 export function googleDriveToDownload(fileId) {
-  const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+  if (!fileId || fileId === "#") return;
+  const id = extractGoogleDriveFileId(fileId);
+  if (!id) return;
+  const downloadUrl = `https://drive.google.com/uc?export=download&id=${id}`;
   window.open(downloadUrl, "_blank");
 };
-
-

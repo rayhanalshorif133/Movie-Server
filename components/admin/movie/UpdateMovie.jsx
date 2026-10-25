@@ -2,6 +2,7 @@
 
 import ImageUploader from '@/components/common/ImageUploader';
 import { getMovieFileInfo } from '@/utils/google/movie-info';
+import { getGoogleDriveImageUrl, getGoogleDriveFileUrl } from '@/utils/google/manage';
 import React, { useEffect, useState } from 'react'
 import { MdClear } from "react-icons/md";
 import axios from "axios";
@@ -140,7 +141,7 @@ export default function UpdateMovie({ movie }) {
         <img
           alt={movie.title}
           className="h-50 w-50 object-cover transition-transform duration-500 group-hover:scale-110"
-          src={`https://lh3.googleusercontent.com/d/${movie.poster}`}
+          src={getGoogleDriveImageUrl(movie.poster)}
         />
       </div>
 

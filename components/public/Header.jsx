@@ -1,7 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
 
-
 export default function Header() {
     return (
         <header className='w-full'>
@@ -9,7 +8,7 @@ export default function Header() {
                 className="bg-linear-to-r from-indigo-900 via-purple-800 to-teal-700 shadow-lg border-b border-white/10 relative z-50">
                 <div className="px-4 md:px-8 py-4 flex items-center justify-between max-w-400 mx-auto">
                     <div className="flex items-center">
-                        <Link href="index.html"
+                        <Link href="/"
                             className="font-pacifico text-2xl md:text-3xl text-white font-cursive tracking-wide drop-shadow-md">
                             Entertainment Diary
                         </Link>

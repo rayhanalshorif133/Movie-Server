@@ -1,6 +1,6 @@
 "use client"
 import MultiImageUploader from '@/components/common/MultiImageUploader';
-import { deleteFileFromGoogleDrive, getGoogleDriveImageUrl } from '@/utils/google/manage';
+import { deleteFileFromGoogleDrive, getGoogleDriveImageUrl, getGoogleDriveFileUrl } from '@/utils/google/manage';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { RxCross2, RxCheck } from 'react-icons/rx';
@@ -15,7 +15,7 @@ export default function ImageList({ images }) {
   // ইনিশিয়াল ইমেজ লোড করা
   useEffect(() => {
     if (images && images.length > 0) {
-      const ids = images.map((item) => item.drive_id);
+      const ids = images.map((item) => item.drive_id || item.id || item.poster).filter(Boolean);
       setImageIds(ids);
     }
   }, [images]);
@@ -23,7 +23,7 @@ export default function ImageList({ images }) {
   // নতুন আপলোড করা ছবিগুলো গ্যালারিতে যোগ করার জন্য ফাংশন
   const handleUploadSuccess = (newDriveIds) => {
     if (newDriveIds && newDriveIds.length > 0) {
-      setImageIds((prev) => [...newDriveIds, ...prev]); // নতুন ছবি শুরুতে দেখাবে
+      setImageIds((prev) => [...newDriveIds, ...prev]);
     }
   };
 
@@ -92,7 +92,6 @@ export default function ImageList({ images }) {
         </div>
 
         <div className="w-1/2 flex flex-wrap items-center gap-4">
-          {/* MultiImageUploader integrated here */}
           <MultiImageUploader setDriveIds={handleUploadSuccess} />
 
           {selectedForDelete.length > 0 && (
@@ -179,8 +178,18 @@ export default function ImageList({ images }) {
               alt="Preview"
               className="max-h-[85vh] w-auto object-contain rounded-lg"
             />
-            <div className="mt-6 px-4 py-1.5 bg-white/10 rounded-full text-white/80 text-sm tracking-widest">
-              {selectedIdx + 1} / {imageIds.length}
+            <div className="mt-6 flex items-center gap-4">
+              <a 
+                href={getGoogleDriveFileUrl(imageIds[selectedIdx])} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-semibold transition"
+              >
+                Open in Google Drive ↗
+              </a>
+              <div className="px-4 py-1.5 bg-white/10 rounded-full text-white/80 text-sm tracking-widest">
+                {selectedIdx + 1} / {imageIds.length}
+              </div>
             </div>
           </div>
 

@@ -22,10 +22,9 @@ export default function GameManager({ initialGames, gameTypes }) {
         const delayDebounceFn = setTimeout(async () => {
             setLoading(true);
             try {
-                const res = await fetch(`/api/games?title=${searchTitle}&type=${searchType}`);
+                const res = await fetch(`/api/games?title=${encodeURIComponent(searchTitle)}&type=${searchType}`);
                 const data = await res.json();
 
-            
                 if (Array.isArray(data)) {
                     setGames(data);
                 } else if (data && Array.isArray(data.games)) {
@@ -39,7 +38,7 @@ export default function GameManager({ initialGames, gameTypes }) {
             } finally {
                 setLoading(false);
             }
-        }, 500);
+        }, 350);
 
         return () => clearTimeout(delayDebounceFn);
     }, [searchTitle, searchType]);
@@ -61,7 +60,10 @@ export default function GameManager({ initialGames, gameTypes }) {
                 gameTypes={gameTypes}
                 searchType={searchType}
                 setSearchType={setSearchType}
+                searchTitle={searchTitle}
                 setSearchTitle={setSearchTitle}
+                totalResults={safeGames.length}
+                allCount={Array.isArray(initialGames) ? initialGames.length : 0}
             />
 
             <div className="space-y-12">
