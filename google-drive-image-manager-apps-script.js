@@ -199,8 +199,12 @@ function doPost(e) {
       var folder = getTargetFolder();
       var file = folder.createFile(blob);
 
-      // পাবলিক ভিউ অ্যাক্সেস সেট করা (যাতে ওয়েব অ্যাপে ইমেজ সরাসরি শো করে)
-      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      // পাবলিক ভিউ অ্যাক্সেস সেট করা (ফোল্ডারে পাবলিক পারমিশন থাকলে অটো ইনহেরিট হবে)
+      try {
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      } catch (shareErr) {
+        // ফোল্ডার অলরেডি শেয়ার্ড থাকলে বা ডোমেন পলিসি থাকলে ইগনোর
+      }
 
       var fileId = file.getId();
 

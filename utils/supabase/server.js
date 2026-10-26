@@ -158,6 +158,12 @@ class MockQueryBuilder {
 
   async then(resolve, reject) {
     try {
+      // Invalidate cache for mutations to ensure fresh live data
+      if (this.pendingDelete || this.pendingUpdate || this.pendingInsert) {
+        cache.data[this.table] = null;
+        cache.timestamp[this.table] = 0;
+      }
+
       // 1. Fetch live data from Google Sheets API, fallback to dbStore
       let sourceData = await fetchSheetData(this.table);
       if (!sourceData || sourceData.length === 0) {
@@ -230,7 +236,7 @@ class MockQueryBuilder {
       // 5. Handle Delete Mutation (Awaited for serverless environments)
       if (this.pendingDelete) {
         const deletePromises = data.map(d =>
-          mutateSheet(this.table, 'delete', { id: d.id })
+          mutateSheet(this.table, 'delete', { id: d.id, drive_id: d.drive_id })
         );
         await Promise.all(deletePromises);
         if (dbStore[this.table]) {
