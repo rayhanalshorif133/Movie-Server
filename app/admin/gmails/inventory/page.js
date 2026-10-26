@@ -3,21 +3,18 @@ import Header from '@/components/admin/Header';
 import Sidebar from '@/components/admin/Sidebar';
 import { createClient } from '@/utils/supabase/server';
 import StatCard from '@/components/admin/StatCard';
-import GmailList from '@/components/admin/gmail/GmailList';
 import GmailInventoryList from '@/components/admin/gmail/GmailInventoryList';
+import { Mail, CheckCircle2, AlertCircle } from 'lucide-react';
 
-
-// Force dynamic rendering since data comes from external Google Sheets
 export const dynamic = 'force-dynamic';
 
-// Metadata for the page
 export async function generateMetadata() {
   return {
-    title: "Gmails | Admin Panel",
+    title: "Storage Inventory | Admin Panel",
   };
 }
 
-export default async function AdminGmailsPage() {
+export default async function AdminGmailsInventoryPage() {
   const supabase = await createClient();
 
   // Fetch all counts in parallel for optimal performance
@@ -33,22 +30,28 @@ export default async function AdminGmailsPage() {
 
   const statsConfig = [
     {
-      label: "Total Gmails",
+      label: "Total Gmail Inventory",
       count: totalGmail,
-      accentClass: "border-l-green-700",
-      textClass: "text-gray-800"
+      smallText: `${(totalGmail || 0) * 15} GB Pool`,
+      accentClass: "border-l-indigo-600",
+      textClass: "text-indigo-700",
+      icon: <Mail className="w-5 h-5 text-indigo-600" />
     },
     {
-      label: "Used Gmails",
+      label: "Allocated Accounts",
       count: usedGmailCount,
-      accentClass: "border-l-teal-400",
-      textClass: "text-gray-800"
+      smallText: `${(usedGmailCount || 0) * 15} GB Allocated`,
+      accentClass: "border-l-blue-600",
+      textClass: "text-blue-700",
+      icon: <CheckCircle2 className="w-5 h-5 text-blue-600" />
     },
     {
-      label: "Unused Gmails",
+      label: "Free Standby Accounts",
       count: unUsedGmailCount,
-      accentClass: "border-l-yellow-400",
-      textClass: "text-yellow-600"
+      smallText: `${(unUsedGmailCount || 0) * 15} GB Free`,
+      accentClass: "border-l-emerald-600",
+      textClass: "text-emerald-700",
+      icon: <AlertCircle className="w-5 h-5 text-emerald-600" />
     }
   ];
 
@@ -57,24 +60,23 @@ export default async function AdminGmailsPage() {
       <Sidebar />
 
       <main className="flex-1 ml-64 p-8">
-        <Header title="Gmails" />
+        <Header title="Storage Inventory" />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
           {statsConfig.map((stat) => (
             <StatCard 
               key={stat.label}
               label={stat.label}
-              smallText={`${stat.count * 15} GB`}
+              smallText={stat.smallText}
               text={stat.count}
               accentClass={stat.accentClass}
               textClass={stat.textClass}
+              icon={stat.icon}
             />
           ))}
         </div>
-        <GmailInventoryList/>
-
-
-
+        
+        <GmailInventoryList />
       </main>
     </div>
   );

@@ -110,6 +110,13 @@ export default function GameRow({ game }) {
                 </div>
             </td>
 
+            {/* Category */}
+            <td className="px-6 py-4">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-violet-50 text-violet-700 uppercase">
+                    {game.type || game.game_type || 'Game'}
+                </span>
+            </td>
+
             <td className="px-6 py-4">
                 <UploadDateBadge date={formatDate(game.created_at)} />
             </td>

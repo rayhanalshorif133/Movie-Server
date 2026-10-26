@@ -34,34 +34,34 @@ export default async function AdminImagesPage() {
         <Header title={'Images Gallery'} publicURL={'/'} pageTitle={'Images'} />
 
         {/* Top Summary Stat Cards in Light Theme */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-            <div className="p-3 bg-pink-50 rounded-xl text-pink-600">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+          <div className="bg-white p-5 rounded-2xl shadow-2xs border border-gray-100 flex items-center gap-4 border-l-4 border-l-pink-600">
+            <div className="p-3 bg-pink-50 rounded-xl text-pink-600 shrink-0">
               <HiOutlinePhoto size={26} />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Total Images</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-1">{images.length}</h3>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Images</p>
+              <h3 className="text-2xl font-black text-gray-900 mt-0.5">{images.length}</h3>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
+          <div className="bg-white p-5 rounded-2xl shadow-2xs border border-gray-100 flex items-center gap-4 border-l-4 border-l-blue-600">
+            <div className="p-3 bg-blue-50 rounded-xl text-blue-600 shrink-0">
               <HiOutlineCloud size={26} />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Google Drive Assets</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-1">{driveAssets}</h3>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Google Drive Assets</p>
+              <h3 className="text-2xl font-black text-gray-900 mt-0.5">{driveAssets}</h3>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-            <div className="p-3 bg-purple-50 rounded-xl text-purple-600">
+          <div className="bg-white p-5 rounded-2xl shadow-2xs border border-gray-100 flex items-center gap-4 border-l-4 border-l-purple-600">
+            <div className="p-3 bg-purple-50 rounded-xl text-purple-600 shrink-0">
               <HiOutlineServer size={26} />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Est. Total Storage</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-1">{estStorage} MB</h3>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Est. Total Storage</p>
+              <h3 className="text-2xl font-black text-gray-900 mt-0.5">{estStorage} MB</h3>
             </div>
           </div>
         </div>

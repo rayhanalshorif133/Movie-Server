@@ -1,12 +1,16 @@
 import Header from '@/components/admin/Header';
-import UpdateMovie from '@/components/admin/movie/UpdateMovie'
-import UploadMovie from '@/components/admin/movie/UploadMovie'
-import Sidebar from '@/components/admin/Sidebar'
+import UpdateMovie from '@/components/admin/movie/UpdateMovie';
+import UploadMovie from '@/components/admin/movie/UploadMovie';
+import Sidebar from '@/components/admin/Sidebar';
 import { createClient } from '@/utils/supabase/server';
 
-export async function generateMetadata() {
+export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ searchParams }) {
+    const resolvedSearchParams = await searchParams;
+    const isUpdate = !!resolvedSearchParams?.id;
     return {
-        title: "Manage Movie | Admin Panel",
+        title: `${isUpdate ? 'Edit Movie' : 'Publish Movie'} | Admin Panel`,
     };
 }
 
@@ -25,21 +29,20 @@ export default async function page({ searchParams }) {
         movie = data || null;
     }
 
-
-
     return (
-        <div className="bg-gray-50 flex">
-
+        <div className="bg-gray-50 flex min-h-screen">
             <Sidebar />
 
             <div className="flex-1 ml-64 p-8">
-                <Header title={'Media Center'} publicURL={'/'} pageTitle={'Movies'}/>
+                <Header 
+                    title={isUpdate ? `Edit Movie: ${movie?.title || 'Loading...'}` : 'Publish New Movie'} 
+                    publicURL={'/'} 
+                    pageTitle={'Movies'}
+                />
                 {
                     isUpdate ? <UpdateMovie movie={movie} /> : <UploadMovie />
                 }
             </div>
-
-
         </div>
-    )
+    );
 }

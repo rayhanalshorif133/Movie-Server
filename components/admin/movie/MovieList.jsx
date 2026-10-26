@@ -1,7 +1,11 @@
-"use client"
-import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react" // useEffect add kora hoyeche
-import MovieRow from "./MovieRow"
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import MovieRow from "./MovieRow";
+import Link from "next/link";
+import { HiOutlineMagnifyingGlass, HiOutlinePlus } from "react-icons/hi2";
+import { RxCross2 } from "react-icons/rx";
 
 export default function MovieList({
   movieData,
@@ -10,71 +14,109 @@ export default function MovieList({
   search,
   limit
 }) {
-  const router = useRouter()
-  const [searchText, setSearchText] = useState(search || "")
+  const router = useRouter();
+  const [searchText, setSearchText] = useState(search || "");
 
   useEffect(() => {
     setSearchText(search || "");
   }, [search]);
 
-  const totalPages = Math.ceil(totalCount / limit)
+  const totalPages = Math.ceil(totalCount / limit) || 1;
 
   useEffect(() => {
     if (searchText === (search || "")) return;
 
     const delayDebounceFn = setTimeout(() => {
-      router.push(`?search=${searchText}&page=1`)
-    }, 500)
+      router.push(`?search=${encodeURIComponent(searchText)}&page=1`);
+    }, 450);
 
-    return () => clearTimeout(delayDebounceFn)
-  }, [searchText, router, search])
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchText, router, search]);
 
   const goToPage = (page) => {
-    router.push(`?search=${searchText}&page=${page}`)
-  }
+    router.push(`?search=${encodeURIComponent(searchText)}&page=${page}`);
+  };
 
-
+  const startCount = (currentPage - 1) * limit + 1;
+  const endCount = Math.min(currentPage * limit, totalCount);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs overflow-hidden">
+      {/* Header Toolbar */}
+      <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h3 className="font-bold text-gray-900 text-lg">Movies Catalog</h3>
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              {totalCount} Total
+            </span>
+          </div>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {totalCount > 0 ? `Showing ${startCount}-${endCount} of ${totalCount} titles` : 'No titles'}
+          </p>
+        </div>
 
-      {/* Header + Search */}
-      <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-        <h3 className="font-bold text-gray-800 text-lg">Movies List</h3>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-72">
+            <HiOutlineMagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
+            <input
+              type="text"
+              placeholder="Search by movie title..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="w-full pl-9 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:border-blue-500 transition-colors"
+            />
+            {searchText && (
+              <button
+                onClick={() => setSearchText("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <RxCross2 className="text-sm" />
+              </button>
+            )}
+          </div>
 
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search by title..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)} // Type korlei state update hobe
-            className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
-          />
+          {/* Add Movie Action Button */}
+          <Link
+            href="/admin/movies/manage"
+            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95"
+          >
+            <HiOutlinePlus className="text-sm" />
+            <span>Add Movie</span>
+          </Link>
         </div>
       </div>
 
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
-          <thead className="bg-gray-50/50">
+          <thead className="bg-gray-50/75 border-b border-gray-100">
             <tr>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Poster</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Title</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Storage Info</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Dubbed</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Upload Date</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-right">Actions</th>
+              <th className="px-6 py-3.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Poster</th>
+              <th className="px-6 py-3.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Title & Specs</th>
+              <th className="px-6 py-3.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Storage Node</th>
+              <th className="px-6 py-3.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Audio / Dubbed</th>
+              <th className="px-6 py-3.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Upload Date</th>
+              <th className="px-6 py-3.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-gray-100">
             {movieData.length > 0 ? (
-              movieData.map((movie) => {
-                return <MovieRow key={movie.id} movie={movie} />;
-              })
+              movieData.map((movie) => <MovieRow key={movie.id} movie={movie} />)
             ) : (
               <tr>
-                <td colSpan={6} className="px-6 py-10 text-center text-gray-400 italic">
-                  No movies found.
+                <td colSpan={6} className="px-6 py-16 text-center text-gray-400">
+                  <p className="text-sm font-medium">No movies found matching your search.</p>
+                  {searchText && (
+                    <button
+                      onClick={() => setSearchText("")}
+                      className="mt-2 text-xs text-blue-600 hover:underline font-semibold cursor-pointer"
+                    >
+                      Clear search
+                    </button>
+                  )}
                 </td>
               </tr>
             )}
@@ -82,23 +124,74 @@ export default function MovieList({
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* Modern Pagination Footer */}
       {totalPages > 1 && (
-        <div className="p-4 flex justify-center gap-2">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        <div className="p-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <span className="text-gray-400">
+            Page <span className="font-bold text-gray-700">{currentPage}</span> of <span className="font-bold text-gray-700">{totalPages}</span>
+          </span>
+
+          <div className="flex items-center gap-1.5">
             <button
-              key={page}
-              onClick={() => goToPage(page)}
-              className={`px-3 cursor-pointer hover:bg-black hover:text-white py-1 rounded-lg text-sm border ${page === currentPage
-                ? "bg-black text-white"
-                : "bg-white text-gray-600"
-                }`}
+              onClick={() => goToPage(1)}
+              disabled={currentPage === 1}
+              className="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 font-medium transition cursor-pointer text-gray-700"
             >
-              {page}
+              « First
             </button>
-          ))}
+            <button
+              onClick={() => goToPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 font-medium transition cursor-pointer text-gray-700"
+            >
+              ‹ Prev
+            </button>
+
+            {/* Page number buttons */}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => goToPage(pageNum)}
+                  className={`w-8 h-8 rounded-lg font-semibold transition cursor-pointer flex items-center justify-center ${
+                    pageNum === currentPage
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-200"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 font-medium transition cursor-pointer text-gray-700"
+            >
+              Next ›
+            </button>
+            <button
+              onClick={() => goToPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 font-medium transition cursor-pointer text-gray-700"
+            >
+              Last »
+            </button>
+          </div>
         </div>
       )}
     </div>
-  )
+  );
 }

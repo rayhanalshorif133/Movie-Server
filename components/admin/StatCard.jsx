@@ -1,17 +1,37 @@
-import React from 'react'
+import React from 'react';
 
-export default function StatCard({ label, smallText, text, accentClass, textClass = "text-gray-800" }) {
-    return (
-        <div className={`bg-white p-6 rounded-lg border border-gray-100 shadow-sm border-l-4 ${accentClass}`}>
-            <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500 font-semibold">{label}</span>
-                <span className="text-green-600 text-sm font-semibold">
-                    {smallText}
-                </span>
-            </div>
-            <div className={`text-2xl font-bold mt-2 ${textClass}`}>
-                {text}
-            </div>
-        </div>
-    )
+export default function StatCard({ 
+  label, 
+  smallText, 
+  text, 
+  accentClass = "border-l-blue-500", 
+  textClass = "text-gray-900",
+  icon = null
+}) {
+  return (
+    <div className={`bg-white p-5 rounded-2xl border border-gray-100 shadow-2xs hover:shadow-md transition-all duration-300 border-l-4 ${accentClass} group`}>
+      <div className="flex justify-between items-start">
+        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</span>
+        {icon ? (
+          <div className="p-2 rounded-xl bg-gray-50 text-gray-500 group-hover:scale-110 transition-transform">
+            {icon}
+          </div>
+        ) : smallText ? (
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+            {smallText}
+          </span>
+        ) : null}
+      </div>
+
+      <div className={`text-3xl font-black mt-3 tracking-tight ${textClass}`}>
+        {text ?? 0}
+      </div>
+
+      {smallText && icon && (
+        <p className="text-[11px] font-medium text-gray-400 mt-2">
+          {smallText}
+        </p>
+      )}
+    </div>
+  );
 }
