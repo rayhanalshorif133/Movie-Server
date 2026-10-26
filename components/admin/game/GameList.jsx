@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import GameRow from "./GameRow";
 import Link from "next/link";
-import { HiOutlineMagnifyingGlass, HiOutlinePlus } from "react-icons/hi2";
+import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { RxCross2 } from "react-icons/rx";
+import { FcPlus } from "react-icons/fc";
 
 export default function GameList({
   gameData,
@@ -86,9 +87,9 @@ export default function GameList({
           {/* Add Game Button */}
           <Link
             href="/admin/games/manage"
-            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95"
+            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold shadow-xs transition-all active:scale-95"
           >
-            <HiOutlinePlus className="text-sm" />
+            <FcPlus className="text-base" />
             <span>Add Game</span>
           </Link>
         </div>

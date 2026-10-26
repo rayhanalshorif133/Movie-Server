@@ -5,16 +5,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/app/login/actions';
 import { 
-  MdOutlineDashboard, 
-  MdLocalMovies, 
-  MdOutlinePhotoLibrary,
-  MdOutlineCloudDone,
-  MdOutlineLogout
-} from "react-icons/md";
-import { BiLogoGmail } from "react-icons/bi";
+  FcPieChart, 
+  FcFilmReel, 
+  FcClapperboard, 
+  FcSettings, 
+  FcGoogle, 
+  FcDatabase, 
+  FcStackOfPhotos 
+} from "react-icons/fc";
 import { FaGamepad } from "react-icons/fa6";
-import { RiMovie2AiFill } from "react-icons/ri";
-import { HiOutlineSparkles, HiOutlineFilm } from "react-icons/hi2";
+import { MdOutlineLogout } from "react-icons/md";
+import { HiOutlineFilm } from "react-icons/hi2";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -28,53 +29,61 @@ export default function Sidebar() {
     { 
       label: 'Dashboard', 
       href: '/admin/dashboard', 
-      icon: <MdOutlineDashboard className="text-lg" />, 
+      icon: <FcPieChart className="text-xl" />,
+      iconBg: 'bg-blue-50/90 border-blue-100/80',
       type: 'link' 
     },
     { label: 'Entertainment', type: 'header' },
     { 
       label: 'Movies List', 
       href: '/admin/movies', 
-      icon: <MdLocalMovies className="text-lg" />, 
+      icon: <FcFilmReel className="text-xl" />,
+      iconBg: 'bg-indigo-50/90 border-indigo-100/80',
       type: 'link' 
     },
     { 
       label: 'Add & Manage Movie', 
       href: '/admin/movies/manage', 
-      icon: <RiMovie2AiFill className="text-lg" />, 
+      icon: <FcClapperboard className="text-xl" />,
+      iconBg: 'bg-purple-50/90 border-purple-100/80',
       type: 'link' 
     },
     { label: 'Gaming Zone', type: 'header' },
     { 
       label: 'Games & Assets', 
       href: '/admin/games', 
-      icon: <FaGamepad className="text-lg" />, 
+      icon: <FaGamepad className="text-xl text-emerald-500" />,
+      iconBg: 'bg-emerald-50/90 border-emerald-100/80',
       type: 'link' 
     },
     { 
       label: 'Manage Games', 
       href: '/admin/games/manage', 
-      icon: <FaGamepad className="text-lg" />, 
+      icon: <FcSettings className="text-xl" />,
+      iconBg: 'bg-teal-50/90 border-teal-100/80',
       type: 'link' 
     },
     { label: 'Gmail Management', type: 'header' },
     { 
       label: 'Gmail Accounts', 
       href: '/admin/gmails', 
-      icon: <BiLogoGmail className="text-lg" />, 
+      icon: <FcGoogle className="text-xl" />,
+      iconBg: 'bg-rose-50/90 border-rose-100/80',
       type: 'link' 
     },
     { 
       label: 'Storage Inventory', 
       href: '/admin/gmails/inventory', 
-      icon: <BiLogoGmail className="text-lg" />, 
+      icon: <FcDatabase className="text-xl" />,
+      iconBg: 'bg-amber-50/90 border-amber-100/80',
       type: 'link' 
     },
     { label: 'Media Library', type: 'header' },
     { 
       label: 'Drive Gallery', 
       href: '/admin/images', 
-      icon: <MdOutlinePhotoLibrary className="text-lg" />, 
+      icon: <FcStackOfPhotos className="text-xl" />,
+      iconBg: 'bg-pink-50/90 border-pink-100/80',
       type: 'link',
       badge: 'Drive'
     },
@@ -124,21 +133,25 @@ export default function Sidebar() {
                   setNavigatingHref(item.href);
                 }
               }}
-              className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group ${
                 isActive
-                  ? 'bg-blue-50/80 text-blue-700 font-semibold shadow-xs border border-blue-100'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'bg-blue-50/90 text-blue-800 font-bold shadow-2xs border border-blue-200/80'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50/80'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 {isNavigating ? (
-                  <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                    <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                  </div>
                 ) : (
-                  <span className={`transition-colors ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                  <div className={`w-8 h-8 rounded-xl border flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform ${item.iconBg}`}>
                     {item.icon}
-                  </span>
+                  </div>
                 )}
-                <span>{item.label}</span>
+                <span className={`truncate ${isActive ? 'text-blue-900 font-bold' : 'text-gray-700'}`}>
+                  {item.label}
+                </span>
               </div>
 
               {isNavigating ? (
@@ -172,7 +185,7 @@ export default function Sidebar() {
         {/* Logout Button */}
         <form action={logout}>
           <button className="cursor-pointer flex items-center justify-center gap-2 w-full px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-700 rounded-xl transition-colors border border-transparent hover:border-rose-100">
-            <MdOutlineLogout className="text-sm" />
+            <MdOutlineLogout className="text-base text-rose-500" />
             <span>Sign Out</span>
           </button>
         </form>

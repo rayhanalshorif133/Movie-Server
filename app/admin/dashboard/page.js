@@ -4,19 +4,24 @@ import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
 import { getGoogleDriveImageUrl } from '@/utils/google/manage';
 import { 
-  Film, 
-  Gamepad2, 
-  Mail, 
-  Image as ImageIcon,
-  HardDrive, 
-  PlusCircle, 
   ArrowRight, 
   CheckCircle2, 
   ExternalLink,
   ShieldCheck,
   TrendingUp
 } from 'lucide-react';
-import { HiOutlineFilm, HiOutlineSparkles } from 'react-icons/hi2';
+import { 
+  FcFilmReel, 
+  FcStackOfPhotos, 
+  FcGoogle, 
+  FcDatabase, 
+  FcClapperboard, 
+  FcPieChart, 
+  FcServices,
+  FcPlus
+} from 'react-icons/fc';
+import { FaGamepad } from 'react-icons/fa6';
+import { HiOutlineSparkles } from 'react-icons/hi2';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,28 +63,28 @@ export default async function Page() {
       label: 'Total Movies',
       value: movieCount ?? 0,
       subtext: 'Catalog assets',
-      icon: <Film className="w-5 h-5 text-blue-600" />,
-      bg: 'bg-blue-50',
-      border: 'border-l-blue-600',
-      textColor: 'text-blue-700',
+      icon: <FcFilmReel className="text-2xl" />,
+      bg: 'bg-indigo-50/80 border border-indigo-100',
+      border: 'border-l-indigo-600',
+      textColor: 'text-indigo-700',
       href: '/admin/movies'
     },
     {
       label: 'Games & Assets',
       value: gameCount ?? 0,
       subtext: 'Interactive library',
-      icon: <Gamepad2 className="w-5 h-5 text-violet-600" />,
-      bg: 'bg-violet-50',
-      border: 'border-l-violet-600',
-      textColor: 'text-violet-700',
+      icon: <FaGamepad className="text-2xl text-emerald-500" />,
+      bg: 'bg-emerald-50/80 border border-emerald-100',
+      border: 'border-l-emerald-600',
+      textColor: 'text-emerald-700',
       href: '/admin/games'
     },
     {
       label: 'Gallery Assets',
       value: galleryCount ?? 0,
       subtext: 'Drive cloud assets',
-      icon: <ImageIcon className="w-5 h-5 text-pink-600" />,
-      bg: 'bg-pink-50',
+      icon: <FcStackOfPhotos className="text-2xl" />,
+      bg: 'bg-pink-50/80 border border-pink-100',
       border: 'border-l-pink-600',
       textColor: 'text-pink-700',
       href: '/admin/images'
@@ -88,20 +93,20 @@ export default async function Page() {
       label: 'Active Gmails',
       value: `${usedGmailCount ?? 0} / ${gmailCount ?? 0}`,
       subtext: 'Storage nodes',
-      icon: <Mail className="w-5 h-5 text-amber-600" />,
-      bg: 'bg-amber-50',
-      border: 'border-l-amber-600',
-      textColor: 'text-amber-700',
+      icon: <FcGoogle className="text-2xl" />,
+      bg: 'bg-rose-50/80 border border-rose-100',
+      border: 'border-l-rose-600',
+      textColor: 'text-rose-700',
       href: '/admin/gmails'
     },
     {
       label: 'Cloud Capacity',
       value: `${totalGmailCapacityGB} GB`,
       subtext: `${storagePercentage}% allocated`,
-      icon: <HardDrive className="w-5 h-5 text-emerald-600" />,
-      bg: 'bg-emerald-50',
-      border: 'border-l-emerald-600',
-      textColor: 'text-emerald-700',
+      icon: <FcDatabase className="text-2xl" />,
+      bg: 'bg-amber-50/80 border border-amber-100',
+      border: 'border-l-amber-600',
+      textColor: 'text-amber-700',
       href: '/admin/gmails/inventory'
     },
   ];
@@ -111,29 +116,29 @@ export default async function Page() {
       title: 'Add New Movie',
       desc: 'Publish movie or TV series with Drive file ID',
       href: '/admin/movies/manage',
-      icon: <Film className="w-5 h-5 text-blue-600" />,
-      color: 'bg-blue-50 hover:bg-blue-100/70 text-blue-700 border-blue-100'
+      icon: <FcClapperboard className="text-2xl" />,
+      color: 'bg-blue-50/60 hover:bg-blue-100/70 text-blue-700 border-blue-100'
     },
     {
       title: 'Upload Game Asset',
       desc: 'Add HTML5 games, APKs or PC asset packages',
       href: '/admin/games/manage',
-      icon: <Gamepad2 className="w-5 h-5 text-violet-600" />,
-      color: 'bg-violet-50 hover:bg-violet-100/70 text-violet-700 border-violet-100'
+      icon: <FaGamepad className="text-2xl text-emerald-500" />,
+      color: 'bg-emerald-50/60 hover:bg-emerald-100/70 text-emerald-700 border-emerald-100'
     },
     {
       title: 'Drive Image Gallery',
       desc: 'Browse, preview, and batch-manage Drive photos',
       href: '/admin/images',
-      icon: <ImageIcon className="w-5 h-5 text-pink-600" />,
-      color: 'bg-pink-50 hover:bg-pink-100/70 text-pink-700 border-pink-100'
+      icon: <FcStackOfPhotos className="text-2xl" />,
+      color: 'bg-pink-50/60 hover:bg-pink-100/70 text-pink-700 border-pink-100'
     },
     {
       title: 'Gmail Inventory',
       desc: 'Monitor Google account quotas & tokens',
       href: '/admin/gmails/inventory',
-      icon: <Mail className="w-5 h-5 text-amber-600" />,
-      color: 'bg-amber-50 hover:bg-amber-100/70 text-amber-700 border-amber-100'
+      icon: <FcGoogle className="text-2xl" />,
+      color: 'bg-rose-50/60 hover:bg-rose-100/70 text-rose-700 border-rose-100'
     },
   ];
 
@@ -165,14 +170,14 @@ export default async function Page() {
                 href="/admin/movies/manage"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-blue-800 font-bold text-xs shadow-lg shadow-black/10 hover:bg-blue-50 transition-all active:scale-95 cursor-pointer"
               >
-                <PlusCircle className="w-4 h-4 text-blue-700" />
+                <FcPlus className="text-base" />
                 <span>Add New Movie</span>
               </Link>
               <Link
                 href="/admin/images"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-md text-white font-bold text-xs border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
               >
-                <ImageIcon className="w-4 h-4" />
+                <FcStackOfPhotos className="text-base" />
                 <span>Drive Gallery</span>
               </Link>
             </div>
@@ -392,25 +397,29 @@ export default async function Page() {
                 {/* Google Sheet */}
                 <div className="p-3 rounded-xl bg-gray-50 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                      <FcDatabase className="text-base" />
+                    </div>
                     <div>
                       <p className="font-bold text-gray-800">Google Sheet Database</p>
                       <p className="text-[10px] text-gray-400 font-mono">movie-server.xlsx</p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-semibold text-gray-500">Synced</span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">Synced</span>
                 </div>
 
                 {/* Google Drive */}
                 <div className="p-3 rounded-xl bg-gray-50 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                      <FcGoogle className="text-base" />
+                    </div>
                     <div>
                       <p className="font-bold text-gray-800">Google Drive API</p>
                       <p className="text-[10px] text-gray-400 font-mono truncate max-w-[120px]">Folder 1vMGg-...</p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-semibold text-gray-500">Active</span>
+                  <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">Active</span>
                 </div>
 
                 {/* Gmail Storage Quota Bar */}

@@ -3,7 +3,7 @@ import Header from '@/components/admin/Header';
 import { createClient } from '@/utils/supabase/server';
 import StatCard from '@/components/admin/StatCard';
 import GmailList from '@/components/admin/gmail/GmailList';
-import { Mail, CheckCircle2, AlertCircle } from 'lucide-react';
+import { FcGoogle, FcDatabase, FcCheckmark } from 'react-icons/fc';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +34,8 @@ export default async function AdminGmailsPage() {
       smallText: `${(totalGmail || 0) * 15} GB Pool`,
       accentClass: "border-l-indigo-600",
       textClass: "text-indigo-700",
-      icon: <Mail className="w-5 h-5 text-indigo-600" />
+      iconBg: "bg-indigo-50/80 border-indigo-100",
+      icon: <FcGoogle className="text-2xl" />
     },
     {
       label: "Active Storage Nodes",
@@ -42,7 +43,8 @@ export default async function AdminGmailsPage() {
       smallText: `${(usedGmailCount || 0) * 15} GB Allocated`,
       accentClass: "border-l-blue-600",
       textClass: "text-blue-700",
-      icon: <CheckCircle2 className="w-5 h-5 text-blue-600" />
+      iconBg: "bg-blue-50/80 border-blue-100",
+      icon: <FcDatabase className="text-2xl" />
     },
     {
       label: "Available / Standby Gmails",
@@ -50,7 +52,8 @@ export default async function AdminGmailsPage() {
       smallText: `${(unUsedGmailCount || 0) * 15} GB Available`,
       accentClass: "border-l-emerald-600",
       textClass: "text-emerald-700",
-      icon: <AlertCircle className="w-5 h-5 text-emerald-600" />
+      iconBg: "bg-emerald-50/80 border-emerald-100",
+      icon: <FcCheckmark className="text-2xl" />
     }
   ];
 
@@ -67,6 +70,7 @@ export default async function AdminGmailsPage() {
               text={stat.count}
               accentClass={stat.accentClass}
               textClass={stat.textClass}
+              iconBg={stat.iconBg}
               icon={stat.icon}
             />
           ))}

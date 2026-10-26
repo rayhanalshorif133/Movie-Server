@@ -2,7 +2,7 @@ import React from 'react';
 import Header from '@/components/admin/Header';
 import { createClient } from '@/utils/supabase/server';
 import ImageList from '@/components/admin/image/ImageList';
-import { HiOutlinePhoto, HiOutlineCloud, HiOutlineServer } from 'react-icons/hi2';
+import { FcStackOfPhotos, FcGoogle, FcDatabase } from 'react-icons/fc';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,8 +32,8 @@ export default async function AdminImagesPage() {
         {/* Top Summary Stat Cards in Light Theme */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
           <div className="bg-white p-5 rounded-2xl shadow-2xs border border-gray-100 flex items-center gap-4 border-l-4 border-l-pink-600">
-            <div className="p-3 bg-pink-50 rounded-xl text-pink-600 shrink-0">
-              <HiOutlinePhoto size={26} />
+            <div className="p-2.5 bg-pink-50/80 rounded-xl border border-pink-100 shrink-0">
+              <FcStackOfPhotos className="text-3xl" />
             </div>
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Images</p>
@@ -42,8 +42,8 @@ export default async function AdminImagesPage() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl shadow-2xs border border-gray-100 flex items-center gap-4 border-l-4 border-l-blue-600">
-            <div className="p-3 bg-blue-50 rounded-xl text-blue-600 shrink-0">
-              <HiOutlineCloud size={26} />
+            <div className="p-2.5 bg-blue-50/80 rounded-xl border border-blue-100 shrink-0">
+              <FcGoogle className="text-3xl" />
             </div>
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Google Drive Assets</p>
@@ -52,8 +52,8 @@ export default async function AdminImagesPage() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl shadow-2xs border border-gray-100 flex items-center gap-4 border-l-4 border-l-purple-600">
-            <div className="p-3 bg-purple-50 rounded-xl text-purple-600 shrink-0">
-              <HiOutlineServer size={26} />
+            <div className="p-2.5 bg-purple-50/80 rounded-xl border border-purple-100 shrink-0">
+              <FcDatabase className="text-3xl" />
             </div>
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Est. Total Storage</p>

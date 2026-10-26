@@ -6,6 +6,7 @@ export default function StatCard({
   text, 
   accentClass = "border-l-blue-500", 
   textClass = "text-gray-900",
+  iconBg = "bg-blue-50 border-blue-100",
   icon = null
 }) {
   return (
@@ -13,7 +14,7 @@ export default function StatCard({
       <div className="flex justify-between items-start">
         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</span>
         {icon ? (
-          <div className="p-2 rounded-xl bg-gray-50 text-gray-500 group-hover:scale-110 transition-transform">
+          <div className={`p-2 rounded-xl border ${iconBg} shadow-2xs group-hover:scale-110 transition-transform flex items-center justify-center`}>
             {icon}
           </div>
         ) : smallText ? (

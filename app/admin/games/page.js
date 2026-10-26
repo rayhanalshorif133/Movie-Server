@@ -2,7 +2,8 @@ import GameList from '@/components/admin/game/GameList';
 import Header from '@/components/admin/Header';
 import { createClient } from '@/utils/supabase/server';
 import React from 'react';
-import { Gamepad2, HardDrive, CheckCircle2 } from 'lucide-react';
+import { FaGamepad } from 'react-icons/fa6';
+import { FcFolder, FcDatabase } from 'react-icons/fc';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,8 +53,8 @@ export default async function Page({ searchParams }) {
                 {/* KPI Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mb-8">
                     <div className="bg-white p-5 rounded-2xl shadow-2xs border border-gray-100 flex items-center gap-4 border-l-4 border-l-violet-600">
-                        <div className="p-3 bg-violet-50 rounded-xl text-violet-600 shrink-0">
-                            <Gamepad2 className="w-6 h-6" />
+                        <div className="p-2.5 bg-violet-50/80 rounded-xl border border-violet-100 shrink-0">
+                            <FaGamepad className="text-3xl text-violet-600" />
                         </div>
                         <div>
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
@@ -66,8 +67,8 @@ export default async function Page({ searchParams }) {
                     </div>
 
                     <div className="bg-white p-5 rounded-2xl shadow-2xs border border-gray-100 flex items-center gap-4 border-l-4 border-l-indigo-600">
-                        <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                            <HardDrive className="w-6 h-6" />
+                        <div className="p-2.5 bg-indigo-50/80 rounded-xl border border-indigo-100 shrink-0">
+                            <FcFolder className="text-3xl" />
                         </div>
                         <div>
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
@@ -80,8 +81,8 @@ export default async function Page({ searchParams }) {
                     </div>
 
                     <div className="bg-white p-5 rounded-2xl shadow-2xs border border-gray-100 flex items-center gap-4 border-l-4 border-l-emerald-600">
-                        <div className="p-3 bg-emerald-50 rounded-xl text-emerald-600 shrink-0">
-                            <CheckCircle2 className="w-6 h-6" />
+                        <div className="p-2.5 bg-emerald-50/80 rounded-xl border border-emerald-100 shrink-0">
+                            <FcDatabase className="text-3xl" />
                         </div>
                         <div>
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">

@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import MovieRow from "./MovieRow";
 import Link from "next/link";
-import { HiOutlineMagnifyingGlass, HiOutlinePlus } from "react-icons/hi2";
+import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { RxCross2 } from "react-icons/rx";
+import { FcPlus } from "react-icons/fc";
 
 export default function MovieList({
   movieData,
@@ -86,9 +87,9 @@ export default function MovieList({
           {/* Add Movie Action Button */}
           <Link
             href="/admin/movies/manage"
-            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95"
+            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all active:scale-95"
           >
-            <HiOutlinePlus className="text-sm" />
+            <FcPlus className="text-base" />
             <span>Add Movie</span>
           </Link>
         </div>
