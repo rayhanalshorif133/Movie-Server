@@ -50,7 +50,7 @@ export default function ImageList({ images }) {
       setRawItems((prev) => [...newItems, ...prev]);
       Swal.fire({
         title: 'Upload Successful!',
-        text: `${newDriveIds.length} image(s) uploaded and saved.`,
+        text: `${newDriveIds.length} image(s) uploaded and saved to gallery.`,
         icon: 'success',
         timer: 1800,
         showConfirmButton: false
@@ -117,15 +117,26 @@ export default function ImageList({ images }) {
     );
   };
 
-  // Select all items currently visible on this page
+  // Select/Deselect all items on current page
   const selectAllCurrentPage = () => {
     const pageIds = paginatedItems.map(item => item.drive_id);
-    const allSelected = pageIds.every(id => selectedForDelete.includes(id));
+    const allSelected = pageIds.length > 0 && pageIds.every(id => selectedForDelete.includes(id));
     if (allSelected) {
       setSelectedForDelete(prev => prev.filter(id => !pageIds.includes(id)));
     } else {
       setSelectedForDelete(prev => Array.from(new Set([...prev, ...pageIds])));
     }
+  };
+
+  // Select all filtered items
+  const selectAllFiltered = () => {
+    const allIds = filteredItems.map(item => item.drive_id);
+    setSelectedForDelete(allIds);
+  };
+
+  // Clear selection
+  const clearSelection = () => {
+    setSelectedForDelete([]);
   };
 
   // Delete Single Image
@@ -172,12 +183,13 @@ export default function ImageList({ images }) {
 
     const result = await Swal.fire({
       title: 'Delete Selected Images?',
-      text: `You are about to delete ${selectedForDelete.length} image(s). This cannot be undone.`,
+      text: `You are about to delete ${selectedForDelete.length} image(s) from Google Drive and database.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#64748b',
-      confirmButtonText: `Yes, delete ${selectedForDelete.length} images!`,
+      confirmButtonText: `Yes, delete ${selectedForDelete.length} image(s)!`,
+      cancelButtonText: 'Cancel'
     });
 
     if (result.isConfirmed) {
@@ -227,22 +239,25 @@ export default function ImageList({ images }) {
     setSelectedIdx((prev) => (prev - 1 + filteredItems.length) % filteredItems.length);
   };
 
+  const isCurrentPageAllSelected = paginatedItems.length > 0 && 
+    paginatedItems.every(i => selectedForDelete.includes(i.drive_id));
+
   return (
     <div className="w-full space-y-6">
-      {/* Top Banner & Uploader Section */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 bg-slate-800/90 border border-slate-700/80 rounded-2xl shadow-xl gap-6">
+      {/* Top Banner & Uploader Card in Light Theme */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm gap-6">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-2 h-7 rounded-full bg-gradient-to-b from-pink-500 to-purple-600" />
-            <h2 className="text-2xl font-black text-white tracking-wide">
-              Google Drive Asset Gallery
+            <div className="w-2 h-7 rounded-full bg-gradient-to-b from-blue-600 to-indigo-600" />
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+              Google Drive Image Gallery
             </h2>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-400 border border-pink-500/30">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
               {rawItems.length} Total Assets
             </span>
           </div>
-          <p className="text-sm text-slate-400 mt-1 pl-5">
-            Click any image to view full-res lightbox, copy Drive IDs for movie posters, or batch manage assets.
+          <p className="text-sm text-gray-500 mt-1 pl-5">
+            View full-res images, copy Google Drive file IDs with 1-click, or multi-select images to delete.
           </p>
         </div>
 
@@ -252,31 +267,31 @@ export default function ImageList({ images }) {
           {selectedForDelete.length > 0 && (
             <button
               onClick={deleteSelectedImages}
-              className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-rose-600/30 font-semibold text-sm transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl shadow-md font-semibold text-sm transition-all active:scale-95 cursor-pointer"
             >
-              <RxCross2 className="text-base" />
-              Delete ({selectedForDelete.length})
+              <FiTrash2 className="text-base" />
+              Delete Selected ({selectedForDelete.length})
             </button>
           )}
         </div>
       </div>
 
-      {/* Filter, Search & Pagination Toolbar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-slate-800/70 border border-slate-700/60 rounded-xl">
+      {/* Filter, Search & Pagination Toolbar in Light Theme */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white border border-gray-200 rounded-xl shadow-sm">
         {/* Search Box */}
         <div className="relative w-full sm:w-80">
-          <HiOutlineMagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
+          <HiOutlineMagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by Drive ID or #ID..."
-            className="w-full pl-10 pr-9 py-2 bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-500 rounded-xl text-sm focus:outline-none focus:border-pink-500 transition-colors"
+            className="w-full pl-10 pr-9 py-2 bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 rounded-xl text-sm focus:bg-white focus:outline-none focus:border-blue-500 transition-colors"
           />
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               <RxCross2 />
             </button>
@@ -288,18 +303,31 @@ export default function ImageList({ images }) {
           {paginatedItems.length > 0 && (
             <button
               onClick={selectAllCurrentPage}
-              className="px-3 py-1.5 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-600/60 transition cursor-pointer"
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                isCurrentPageAllSelected
+                  ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                  : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+              }`}
             >
-              {paginatedItems.every(i => selectedForDelete.includes(i.drive_id)) ? 'Deselect Page' : 'Select Page'}
+              {isCurrentPageAllSelected ? '✓ Deselect Page' : 'Select All on Page'}
             </button>
           )}
 
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <span>Show:</span>
+          {selectedForDelete.length > 0 && (
+            <button
+              onClick={clearSelection}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer"
+            >
+              Clear Selection ({selectedForDelete.length})
+            </button>
+          )}
+
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <span>Per page:</span>
             <select
               value={itemsPerPage}
               onChange={(e) => setItemsPerPage(e.target.value)}
-              className="bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-pink-500"
+              className="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-blue-500"
             >
               <option value="24">24</option>
               <option value="36">36</option>
@@ -309,7 +337,7 @@ export default function ImageList({ images }) {
             </select>
           </div>
 
-          <span className="text-xs font-medium text-slate-400">
+          <span className="text-xs font-medium text-gray-500">
             {totalItems > 0 ? (
               isAll ? `All ${totalItems}` : `${(currentPage - 1) * perPageNum + 1}-${Math.min(currentPage * perPageNum, totalItems)} of ${totalItems}`
             ) : '0 items'}
@@ -317,11 +345,45 @@ export default function ImageList({ images }) {
         </div>
       </div>
 
+      {/* Floating Sticky Batch Action Bar when images are selected */}
+      {selectedForDelete.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white border border-gray-200 shadow-2xl rounded-2xl px-6 py-3.5 flex items-center gap-4 animate-in fade-in slide-in-from-bottom duration-300">
+          <div className="flex items-center gap-2 pr-3 border-r border-gray-200">
+            <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
+              {selectedForDelete.length}
+            </span>
+            <span className="text-sm font-semibold text-gray-800">Selected</span>
+          </div>
+
+          <button
+            onClick={selectAllFiltered}
+            className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+          >
+            Select All ({totalItems})
+          </button>
+
+          <button
+            onClick={clearSelection}
+            className="text-xs font-medium text-gray-500 hover:text-gray-800 cursor-pointer"
+          >
+            Clear
+          </button>
+
+          <button
+            onClick={deleteSelectedImages}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer ml-2"
+          >
+            <FiTrash2 className="text-sm" />
+            Delete Selected ({selectedForDelete.length})
+          </button>
+        </div>
+      )}
+
       {/* Floating Loading Toast */}
       {deleteMessage && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[70]">
-          <div className="flex items-center gap-3 bg-slate-900 border border-pink-500/50 text-pink-300 px-6 py-3 rounded-2xl shadow-2xl backdrop-blur-md animate-bounce">
-            <div className="w-4 h-4 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex items-center gap-3 bg-white border border-blue-200 text-blue-700 px-6 py-3 rounded-2xl shadow-2xl animate-bounce">
+            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             <span className="font-semibold text-sm">{deleteMessage}</span>
           </div>
         </div>
@@ -337,7 +399,7 @@ export default function ImageList({ images }) {
         </div>
       )}
 
-      {/* Image Grid */}
+      {/* Image Grid in Light Theme */}
       {paginatedItems.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {paginatedItems.map((item, index) => {
@@ -347,16 +409,16 @@ export default function ImageList({ images }) {
             return (
               <div
                 key={item.drive_id || index}
-                className={`group relative rounded-xl overflow-hidden bg-slate-900 border transition-all duration-300 flex flex-col shadow-md hover:shadow-xl hover:-translate-y-1 ${
+                className={`group relative rounded-xl overflow-hidden bg-white border transition-all duration-300 flex flex-col shadow-sm hover:shadow-md hover:-translate-y-1 ${
                   isSelected 
-                    ? 'border-pink-500 ring-2 ring-pink-500/40' 
-                    : 'border-slate-800 hover:border-pink-500/50'
+                    ? 'border-blue-600 ring-2 ring-blue-500/30 bg-blue-50/20' 
+                    : 'border-gray-200 hover:border-blue-400'
                 }`}
               >
                 {/* Thumbnail Image Container */}
                 <div 
                   onClick={() => openSlider(item)}
-                  className="relative aspect-square w-full overflow-hidden bg-slate-950 cursor-pointer"
+                  className="relative aspect-square w-full overflow-hidden bg-gray-100 cursor-pointer"
                 >
                   <img
                     src={getGoogleDriveImageUrl(item.drive_id)}
@@ -369,9 +431,9 @@ export default function ImageList({ images }) {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
 
-                  {/* Gradient Overlay on hover */}
-                  <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-                    <span className="p-2 rounded-full bg-pink-600/90 text-white shadow-lg transform scale-75 group-hover:scale-100 transition-transform">
+                  {/* Gradient Overlay on hover with zoom icon */}
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                    <span className="p-2 rounded-full bg-white/90 text-gray-800 shadow-md transform scale-75 group-hover:scale-100 transition-transform">
                       <FiMaximize2 className="text-sm" />
                     </span>
                   </div>
@@ -379,31 +441,31 @@ export default function ImageList({ images }) {
                   {/* Multi-select Checkbox (Top Left) */}
                   <div
                     onClick={(e) => toggleSelect(item.drive_id, e)}
-                    className={`absolute top-2 left-2 w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer transition-all border shadow-md z-10 ${
+                    className={`absolute top-2 left-2 w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer transition-all border shadow-sm z-10 ${
                       isSelected
-                        ? 'bg-pink-600 border-pink-500 text-white'
-                        : 'bg-slate-950/70 border-white/30 text-transparent hover:text-pink-400 hover:border-pink-400'
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'bg-white/90 backdrop-blur-sm border-gray-300 text-transparent hover:border-blue-500 hover:bg-white'
                     }`}
-                    title="Select for bulk delete"
+                    title={isSelected ? 'Deselect image' : 'Select image for bulk delete'}
                   >
                     <RxCheck className="text-sm font-black" />
                   </div>
 
                   {/* Index / ID Badge (Top Right) */}
-                  <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-slate-950/80 backdrop-blur-md border border-white/10 text-slate-300 text-[10px] font-mono pointer-events-none">
+                  <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-600 text-[10px] font-mono pointer-events-none shadow-sm">
                     #{item.id || globalIdx}
                   </div>
                 </div>
 
                 {/* Bottom Card Bar (Actions & File ID) */}
-                <div className="p-2.5 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-xs">
+                <div className="p-2.5 bg-gray-50/90 border-t border-gray-100 flex items-center justify-between text-xs">
                   {/* Drive ID with Copy Button */}
                   <button
                     onClick={(e) => handleCopyId(item.drive_id, e)}
-                    className="flex items-center gap-1.5 text-[11px] font-mono text-slate-400 hover:text-pink-400 truncate max-w-[110px] transition-colors cursor-pointer"
-                    title={`Click to copy: ${item.drive_id}`}
+                    className="flex items-center gap-1.5 text-[11px] font-mono text-gray-600 hover:text-blue-600 truncate max-w-[110px] transition-colors cursor-pointer"
+                    title={`Click to copy Drive ID: ${item.drive_id}`}
                   >
-                    <FiCopy className="text-xs shrink-0" />
+                    <FiCopy className="text-xs shrink-0 text-gray-400 group-hover:text-blue-500" />
                     <span className="truncate">{item.drive_id}</span>
                   </button>
 
@@ -413,7 +475,7 @@ export default function ImageList({ images }) {
                       href={getGoogleDriveFileUrl(item.drive_id)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded transition-colors"
+                      className="p-1 text-gray-400 hover:text-blue-600 hover:bg-white rounded transition-colors"
                       title="Open in Google Drive"
                       onClick={(e) => e.stopPropagation()}
                     >
@@ -422,7 +484,7 @@ export default function ImageList({ images }) {
 
                     <button
                       onClick={(e) => handleDeleteSingle(item.drive_id, e)}
-                      className="p-1 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-colors cursor-pointer"
+                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
                       title="Delete Image"
                     >
                       <FiTrash2 className="text-xs" />
@@ -434,12 +496,12 @@ export default function ImageList({ images }) {
           })}
         </div>
       ) : (
-        <div className="text-center py-24 border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/40">
-          <p className="text-slate-400 text-base font-medium">No images found matching your search.</p>
+        <div className="text-center py-24 border-2 border-dashed border-gray-200 rounded-3xl bg-white">
+          <p className="text-gray-400 text-base font-medium">No images found matching your search.</p>
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="mt-3 px-4 py-1.5 rounded-xl bg-pink-600/20 text-pink-400 hover:bg-pink-600/30 text-xs font-bold transition"
+              className="mt-3 px-4 py-1.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-bold transition"
             >
               Clear Search Query
             </button>
@@ -447,42 +509,42 @@ export default function ImageList({ images }) {
         </div>
       )}
 
-      {/* Pagination Bar */}
+      {/* Pagination Bar in Light Theme */}
       {!isAll && totalPages > 1 && (
         <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
           <button
             onClick={() => setCurrentPage(1)}
             disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-semibold border border-slate-700 transition"
+            className="px-3 py-1.5 rounded-lg bg-white hover:bg-gray-50 disabled:opacity-40 text-gray-700 text-xs font-semibold border border-gray-200 shadow-sm transition cursor-pointer"
           >
             « First
           </button>
           <button
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-semibold border border-slate-700 transition"
+            className="px-3 py-1.5 rounded-lg bg-white hover:bg-gray-50 disabled:opacity-40 text-gray-700 text-xs font-semibold border border-gray-200 shadow-sm transition cursor-pointer"
           >
             ‹ Prev
           </button>
 
           {/* Page Indicators */}
           <div className="flex items-center gap-1 px-2">
-            <span className="text-xs text-slate-400">
-              Page <span className="font-bold text-pink-400">{currentPage}</span> of <span className="font-bold text-slate-200">{totalPages}</span>
+            <span className="text-xs text-gray-500">
+              Page <span className="font-bold text-blue-600">{currentPage}</span> of <span className="font-bold text-gray-800">{totalPages}</span>
             </span>
           </div>
 
           <button
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-semibold border border-slate-700 transition"
+            className="px-3 py-1.5 rounded-lg bg-white hover:bg-gray-50 disabled:opacity-40 text-gray-700 text-xs font-semibold border border-gray-200 shadow-sm transition cursor-pointer"
           >
             Next ›
           </button>
           <button
             onClick={() => setCurrentPage(totalPages)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-semibold border border-slate-700 transition"
+            className="px-3 py-1.5 rounded-lg bg-white hover:bg-gray-50 disabled:opacity-40 text-gray-700 text-xs font-semibold border border-gray-200 shadow-sm transition cursor-pointer"
           >
             Last »
           </button>
@@ -493,12 +555,12 @@ export default function ImageList({ images }) {
       {selectedIdx !== null && filteredItems[selectedIdx] && (
         <div 
           onClick={closeSlider}
-          className="fixed inset-0 bg-slate-950/95 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
         >
           {/* Close Button */}
           <button 
             onClick={closeSlider} 
-            className="absolute top-5 right-5 p-3 bg-white/10 hover:bg-rose-600 text-white rounded-full transition-colors z-50 cursor-pointer"
+            className="absolute top-5 right-5 p-3 bg-white/10 hover:bg-red-600 text-white rounded-full transition-colors z-50 cursor-pointer"
             title="Close (Esc)"
           >
             <RxCross2 className="text-xl" />
@@ -507,7 +569,7 @@ export default function ImageList({ images }) {
           {/* Previous Button */}
           <button 
             onClick={prevSlide} 
-            className="hidden md:flex absolute left-6 p-4 rounded-full bg-slate-900/80 hover:bg-pink-600 border border-slate-700 text-white transition-all shadow-xl z-50 cursor-pointer"
+            className="hidden md:flex absolute left-6 p-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all shadow-xl z-50 cursor-pointer"
             title="Previous (Left Arrow)"
           >
             <span className="text-2xl">❮</span>
@@ -518,7 +580,7 @@ export default function ImageList({ images }) {
             onClick={(e) => e.stopPropagation()}
             className="relative max-w-5xl w-full flex flex-col items-center max-h-[90vh]"
           >
-            <div className="relative w-full max-h-[75vh] flex items-center justify-center overflow-hidden rounded-2xl bg-black/60 border border-slate-800 shadow-2xl p-2">
+            <div className="relative w-full max-h-[75vh] flex items-center justify-center overflow-hidden rounded-2xl bg-black/60 border border-white/10 shadow-2xl p-2">
               <img
                 src={getGoogleDriveImageUrl(filteredItems[selectedIdx].drive_id)}
                 alt="Full Preview"
@@ -527,16 +589,16 @@ export default function ImageList({ images }) {
             </div>
 
             {/* Bottom Modal Dock */}
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-3 bg-slate-900/90 border border-slate-800/80 px-6 py-2.5 rounded-2xl shadow-xl backdrop-blur-md">
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3 bg-gray-900/90 border border-white/10 px-6 py-2.5 rounded-2xl shadow-xl backdrop-blur-md">
               {/* Counter */}
-              <span className="text-xs font-bold text-slate-400 font-mono pr-2 border-r border-slate-700">
+              <span className="text-xs font-bold text-gray-300 font-mono pr-2 border-r border-gray-700">
                 {selectedIdx + 1} / {filteredItems.length}
               </span>
 
               {/* Copy ID Button */}
               <button
                 onClick={() => handleCopyId(filteredItems[selectedIdx].drive_id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-pink-600/30 text-slate-200 hover:text-pink-400 border border-slate-700 text-xs font-semibold transition cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-blue-600/30 text-gray-200 hover:text-blue-400 border border-white/10 text-xs font-semibold transition cursor-pointer"
               >
                 <FiCopy />
                 <span>Copy ID</span>
@@ -565,7 +627,7 @@ export default function ImageList({ images }) {
               {/* Delete Button */}
               <button
                 onClick={() => handleDeleteSingle(filteredItems[selectedIdx].drive_id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
               >
                 <FiTrash2 />
                 <span>Delete</span>
@@ -576,7 +638,7 @@ export default function ImageList({ images }) {
           {/* Next Button */}
           <button 
             onClick={nextSlide} 
-            className="hidden md:flex absolute right-6 p-4 rounded-full bg-slate-900/80 hover:bg-pink-600 border border-slate-700 text-white transition-all shadow-xl z-50 cursor-pointer"
+            className="hidden md:flex absolute right-6 p-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all shadow-xl z-50 cursor-pointer"
             title="Next (Right Arrow)"
           >
             <span className="text-2xl">❯</span>

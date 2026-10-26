@@ -1,5 +1,15 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBitNkcvoaAK7KFPo2dXZxh9WEeIlRaK1HwZOClAvtNmtUS7p1U7JYqJmnAcWKvNumRw/exec";
-const SCRIPT_URL_DELETE = "https://script.google.com/macros/s/AKfycbzzk_p0ysLCF7SA6yUp6PZO5k62VufN5ER88mj0wd9QhT-iCZPtWo4QGguzZMTq35aUxw/exec";
+const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBitNkcvoaAK7KFPo2dXZxh9WEeIlRaK1HwZOClAvtNmtUS7p1U7JYqJmnAcWKvNumRw/exec";
+const DEFAULT_SCRIPT_URL_DELETE = "https://script.google.com/macros/s/AKfycbzzk_p0ysLCF7SA6yUp6PZO5k62VufN5ER88mj0wd9QhT-iCZPtWo4QGguzZMTq35aUxw/exec";
+
+export function getDriveUploadApiUrl() {
+  return process.env.NEXT_PUBLIC_GOOGLE_DRIVE_API_URL || DEFAULT_SCRIPT_URL;
+}
+
+export function getDriveDeleteApiUrl() {
+  return process.env.NEXT_PUBLIC_GOOGLE_DRIVE_DELETE_URL || 
+         process.env.NEXT_PUBLIC_GOOGLE_DRIVE_API_URL || 
+         DEFAULT_SCRIPT_URL_DELETE;
+}
 
 export async function uploadImageInGoogleDrive(file) {
   if (!file) return null;
@@ -22,7 +32,8 @@ export async function uploadImageInGoogleDrive(file) {
       fileName: file.name,
     };
 
-    const response = await fetch(SCRIPT_URL, {
+    const uploadUrl = getDriveUploadApiUrl();
+    const response = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain;charset=utf-8',
@@ -34,6 +45,43 @@ export async function uploadImageInGoogleDrive(file) {
     return result.id;
   } catch (error) {
     console.error("Upload Error:", error);
+    return null;
+  }
+}
+
+export async function updateImageInGoogleDrive(fileId, newFile) {
+  if (!fileId || !newFile) return null;
+
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  try {
+    const base64Data = await convertToBase64(newFile);
+    const payload = {
+      action: 'update',
+      fileId: fileId,
+      base64: base64Data,
+      mimeType: newFile.type,
+      fileName: newFile.name,
+    };
+
+    const apiUrl = getDriveUploadApiUrl();
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    return result.id || result.fileId || null;
+  } catch (error) {
+    console.error("Update Image Error:", error);
     return null;
   }
 }
@@ -55,7 +103,8 @@ export async function deleteFileFromGoogleDrive(fileId) {
       fileId: fileId,
     };
 
-    const response = await fetch(SCRIPT_URL_DELETE, {
+    const deleteUrl = getDriveDeleteApiUrl();
+    const response = await fetch(deleteUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain;charset=utf-8',

@@ -2,8 +2,8 @@ import React from 'react';
 import Header from '@/components/admin/Header';
 import Sidebar from '@/components/admin/Sidebar';
 import { createClient } from '@/utils/supabase/server';
-import StatCard from '@/components/admin/StatCard';
 import ImageList from '@/components/admin/image/ImageList';
+import { HiOutlinePhoto, HiOutlineCloud, HiOutlineServer } from 'react-icons/hi2';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,54 +17,56 @@ export async function generateMetadata() {
 export default async function AdminImagesPage() {
   const supabase = await createClient();
 
-  const { data: rawImages, error } = await supabase
+  const { data: rawImages } = await supabase
     .from('galleries')
     .select('*')
     .order('id', { ascending: false });
 
   const images = Array.isArray(rawImages) ? rawImages : [];
-
-  const statsConfig = [
-    {
-      label: "Total Images",
-      count: images.length,
-      accentClass: "border-l-pink-600",
-      textClass: "text-slate-800"
-    },
-    {
-      label: "Google Drive Assets",
-      count: images.filter(img => img.drive_id).length,
-      accentClass: "border-l-cyan-600",
-      textClass: "text-slate-800"
-    },
-    {
-      label: "Total Est. Storage",
-      count: `${(images.length * 1.8).toFixed(1)} MB`,
-      accentClass: "border-l-purple-600",
-      textClass: "text-slate-800"
-    }
-  ];
+  const driveAssets = images.filter(img => img.drive_id && img.drive_id.trim()).length;
+  const estStorage = (images.length * 1.8).toFixed(1);
 
   return (
-    <div className="min-h-screen bg-slate-900 flex text-slate-100">
+    <div className="bg-gray-50 flex min-h-screen">
       <Sidebar />
 
       <main className="flex-1 ml-64 p-8">
-        <Header title="Images Gallery" />
+        <Header title={'Images Gallery'} publicURL={'/'} pageTitle={'Images'} />
 
+        {/* Top Summary Stat Cards in Light Theme */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {statsConfig.map((stat) => (
-            <StatCard
-              key={stat.label}
-              label={stat.label}
-              smallText="Asset Vault"
-              text={stat.count}
-              accentClass={stat.accentClass}
-              textClass={stat.textClass}
-            />
-          ))}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+            <div className="p-3 bg-pink-50 rounded-xl text-pink-600">
+              <HiOutlinePhoto size={26} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Total Images</p>
+              <h3 className="text-2xl font-bold text-gray-900 mt-1">{images.length}</h3>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+            <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
+              <HiOutlineCloud size={26} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Google Drive Assets</p>
+              <h3 className="text-2xl font-bold text-gray-900 mt-1">{driveAssets}</h3>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+            <div className="p-3 bg-purple-50 rounded-xl text-purple-600">
+              <HiOutlineServer size={26} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Est. Total Storage</p>
+              <h3 className="text-2xl font-bold text-gray-900 mt-1">{estStorage} MB</h3>
+            </div>
+          </div>
         </div>
 
+        {/* Gallery Component */}
         <ImageList images={images} />
       </main>
     </div>
