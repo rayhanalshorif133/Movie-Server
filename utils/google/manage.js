@@ -1,10 +1,15 @@
 const DEFAULT_DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbzBitNkcvoaAK7KFPo2dXZxh9WEeIlRaK1HwZOClAvtNmtUS7p1U7JYqJmnAcWKvNumRw/exec";
 
 export function getDriveApiUrl() {
-  return process.env.NEXT_PUBLIC_GOOGLE_DRIVE_API_URL || DEFAULT_DRIVE_API_URL;
+  if (typeof window !== "undefined") {
+    return "/api/drive";
+  }
+  return process.env.NEXT_GOOGLE_DRIVE_API_URL || 
+         process.env.NEXT_PUBLIC_GOOGLE_DRIVE_API_URL || 
+         DEFAULT_DRIVE_API_URL;
 }
 
-// Backward-compatibility aliases (pointing to the single unified Drive API URL)
+// Backward-compatibility aliases
 export const getDriveUploadApiUrl = getDriveApiUrl;
 export const getDriveDeleteApiUrl = getDriveApiUrl;
 
