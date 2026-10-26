@@ -1,6 +1,5 @@
 import React from 'react';
 import Header from '@/components/admin/Header';
-import Sidebar from '@/components/admin/Sidebar';
 import { createClient } from '@/utils/supabase/server';
 import ImageList from '@/components/admin/image/ImageList';
 import { HiOutlinePhoto, HiOutlineCloud, HiOutlineServer } from 'react-icons/hi2';
@@ -27,11 +26,8 @@ export default async function AdminImagesPage() {
   const estStorage = (images.length * 1.8).toFixed(1);
 
   return (
-    <div className="bg-gray-50 flex min-h-screen">
-      <Sidebar />
-
-      <main className="flex-1 ml-64 p-8">
-        <Header title={'Images Gallery'} publicURL={'/'} pageTitle={'Images'} />
+    <>
+      <Header title={'Images Gallery'} publicURL={'/'} pageTitle={'Images'} />
 
         {/* Top Summary Stat Cards in Light Theme */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
@@ -68,7 +64,6 @@ export default async function AdminImagesPage() {
 
         {/* Gallery Component */}
         <ImageList images={images} />
-      </main>
-    </div>
+    </>
   );
 }

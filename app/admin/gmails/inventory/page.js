@@ -1,6 +1,5 @@
 import React from 'react';
 import Header from '@/components/admin/Header';
-import Sidebar from '@/components/admin/Sidebar';
 import { createClient } from '@/utils/supabase/server';
 import StatCard from '@/components/admin/StatCard';
 import GmailInventoryList from '@/components/admin/gmail/GmailInventoryList';
@@ -56,11 +55,8 @@ export default async function AdminGmailsInventoryPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-
-      <main className="flex-1 ml-64 p-8">
-        <Header title="Storage Inventory" />
+    <>
+      <Header title="Storage Inventory" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
           {statsConfig.map((stat) => (
@@ -77,7 +73,6 @@ export default async function AdminGmailsInventoryPage() {
         </div>
         
         <GmailInventoryList />
-      </main>
-    </div>
+    </>
   );
 }

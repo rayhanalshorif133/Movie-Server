@@ -1,5 +1,4 @@
 import Header from '@/components/admin/Header';
-import Sidebar from '@/components/admin/Sidebar';
 import React from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
@@ -139,11 +138,8 @@ export default async function Page() {
   ];
 
   return (
-    <div className="bg-gray-50 flex min-h-screen">
-      <Sidebar />
-
-      <main className="flex-1 ml-64 p-8">
-        <Header title="Dashboard Overview" publicURL="/" pageTitle="Movies" />
+    <>
+      <Header title="Dashboard Overview" publicURL="/" pageTitle="Movies" />
 
         {/* Hero Welcome Banner in Light Theme */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-800 p-8 text-white shadow-xl shadow-blue-900/10 mb-8">
@@ -437,7 +433,6 @@ export default async function Page() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+    </>
   );
 }

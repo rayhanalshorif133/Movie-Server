@@ -1,4 +1,3 @@
-import Sidebar from '@/components/admin/Sidebar';
 import React from 'react';
 import { createClient } from '@/utils/supabase/server';
 import { HiOutlineFilm } from "react-icons/hi";
@@ -48,11 +47,8 @@ export default async function Page({ searchParams }) {
     ]);
 
     return (
-        <div className="bg-gray-50 flex min-h-screen">
-            <Sidebar />
-
-            <div className="flex-1 ml-64 p-8">
-                <Header title={'Movies Catalog'} publicURL={'/'} pageTitle={'Movies'} />
+        <>
+            <Header title={'Movies Catalog'} publicURL={'/'} pageTitle={'Movies'} />
 
                 {/* KPI Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mb-8">
@@ -106,7 +102,6 @@ export default async function Page({ searchParams }) {
                     search={search}
                     limit={limit}
                 />
-            </div>
-        </div>
+        </>
     );
 }

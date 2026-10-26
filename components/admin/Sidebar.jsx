@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/app/login/actions';
@@ -17,6 +18,11 @@ import { HiOutlineSparkles, HiOutlineFilm } from "react-icons/hi2";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [navigatingHref, setNavigatingHref] = useState(null);
+
+  useEffect(() => {
+    setNavigatingHref(null);
+  }, [pathname]);
 
   const menuItems = [
     { 
@@ -107,11 +113,17 @@ export default function Sidebar() {
           }
 
           const isActive = pathname === item.href;
+          const isNavigating = navigatingHref === item.href;
 
           return (
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => {
+                if (pathname !== item.href) {
+                  setNavigatingHref(item.href);
+                }
+              }}
               className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive
                   ? 'bg-blue-50/80 text-blue-700 font-semibold shadow-xs border border-blue-100'
@@ -119,17 +131,25 @@ export default function Sidebar() {
               }`}
             >
               <div className="flex items-center gap-3">
-                <span className={`transition-colors ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                  {item.icon}
-                </span>
+                {isNavigating ? (
+                  <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />
+                ) : (
+                  <span className={`transition-colors ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                    {item.icon}
+                  </span>
+                )}
                 <span>{item.label}</span>
               </div>
 
-              {item.badge && (
+              {isNavigating ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100/80 text-blue-700 animate-pulse">
+                  Loading...
+                </span>
+              ) : item.badge ? (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200">
                   {item.badge}
                 </span>
-              )}
+              ) : null}
             </Link>
           );
         })}

@@ -27,6 +27,9 @@ export default function GameList({
     if (searchText === (search || "")) return;
 
     const delayDebounceFn = setTimeout(() => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent('admin-nav-start'));
+      }
       router.push(`?search=${encodeURIComponent(searchText)}&page=1`);
     }, 450);
 
@@ -34,6 +37,9 @@ export default function GameList({
   }, [searchText, router, search]);
 
   const goToPage = (page) => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('admin-nav-start'));
+    }
     router.push(`?search=${encodeURIComponent(searchText)}&page=${page}`);
   };
 

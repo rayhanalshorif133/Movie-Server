@@ -1,6 +1,5 @@
 import GameList from '@/components/admin/game/GameList';
 import Header from '@/components/admin/Header';
-import Sidebar from '@/components/admin/Sidebar';
 import { createClient } from '@/utils/supabase/server';
 import React from 'react';
 import { Gamepad2, HardDrive, CheckCircle2 } from 'lucide-react';
@@ -47,11 +46,8 @@ export default async function Page({ searchParams }) {
     ]);
 
     return (
-        <div className="bg-gray-50 flex min-h-screen">
-            <Sidebar />
-
-            <div className="flex-1 ml-64 p-8">
-                <Header title={'Games & Assets Catalog'} publicURL={'/games'} pageTitle={'Games'} />
+        <>
+            <Header title={'Games & Assets Catalog'} publicURL={'/games'} pageTitle={'Games'} />
 
                 {/* KPI Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mb-8">
@@ -105,7 +101,6 @@ export default async function Page({ searchParams }) {
                     search={search}
                     limit={limit}
                 />
-            </div>
-        </div>
+        </>
     );
 }
