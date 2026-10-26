@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient, mutateSheet } from '@/utils/supabase/server';
 import { deleteFileFromGoogleDrive } from '@/utils/google/manage';
 import { NextResponse } from 'next/server';
 
@@ -33,58 +33,89 @@ export async function POST(request) {
     return NextResponse.json(data, { status: 201 });
 }
 
-// 3. DELETE Method: Delete image(s) from database AND Google Drive
+// 3. DELETE Method: Delete image(s) from Google Sheets AND Google Drive
 export async function DELETE(request) {
     const supabase = await createClient();
-    let driveIds = [];
+    let itemsToDelete = [];
 
-    // Check query params
+    // 1. Check query params (e.g. ?id=1520&drive_id=1xyz...)
     const { searchParams } = new URL(request.url);
-    const queryDriveId = searchParams.get('drive_id') || searchParams.get('id');
-    if (queryDriveId) {
-        driveIds = [queryDriveId];
+    const queryId = searchParams.get('id');
+    const queryDriveId = searchParams.get('drive_id');
+
+    if (queryId || queryDriveId) {
+        itemsToDelete.push({
+            id: queryId || null,
+            drive_id: queryDriveId || null
+        });
     } else {
-        // Check JSON body for single id or array of ids
+        // 2. Check JSON body
         try {
             const body = await request.json();
-            if (Array.isArray(body.drive_ids)) {
-                driveIds = body.drive_ids;
+            if (Array.isArray(body.items)) {
+                itemsToDelete = body.items.map(i => ({
+                    id: i.id || null,
+                    drive_id: i.drive_id || i.fileId || null
+                }));
+            } else if (Array.isArray(body.drive_ids)) {
+                itemsToDelete = body.drive_ids.map(d => ({
+                    id: typeof d === 'object' ? (d.id || null) : null,
+                    drive_id: typeof d === 'string' ? d : (d.drive_id || d.fileId || null)
+                }));
             } else if (Array.isArray(body.ids)) {
-                driveIds = body.ids;
-            } else if (body.drive_id) {
-                driveIds = [body.drive_id];
-            } else if (body.id) {
-                driveIds = [body.id];
+                itemsToDelete = body.ids.map(id => ({
+                    id: id,
+                    drive_id: null
+                }));
+            } else if (body.id || body.drive_id) {
+                itemsToDelete.push({
+                    id: body.id || null,
+                    drive_id: body.drive_id || null
+                });
             }
         } catch (e) {
-            // body might be empty or query-only
+            // body could be empty or invalid json
         }
     }
 
-    // Clean & filter valid non-empty IDs
-    driveIds = driveIds.map(id => String(id).trim()).filter(Boolean);
-
-    if (driveIds.length === 0) {
-        return NextResponse.json({ error: "Missing drive_id or drive_ids parameter" }, { status: 400 });
+    if (itemsToDelete.length === 0) {
+        return NextResponse.json({ error: "Missing id or drive_id parameter" }, { status: 400 });
     }
 
     try {
-        // 1. Delete rows from database (galleries)
-        for (const id of driveIds) {
-            await supabase
-                .from('galleries')
-                .delete()
-                .eq('drive_id', id);
+        const driveIdsToDelete = [];
+
+        for (const item of itemsToDelete) {
+            const rowId = item.id ? String(item.id).trim() : null;
+            const driveId = item.drive_id ? String(item.drive_id).trim() : null;
+
+            // Delete from Google Sheet via direct mutation & supabase mock
+            if (rowId) {
+                await mutateSheet('galleries', 'delete', { id: rowId });
+                await supabase.from('galleries').delete().eq('id', rowId);
+            }
+            if (driveId) {
+                await mutateSheet('galleries', 'delete', { drive_id: driveId });
+                await supabase.from('galleries').delete().eq('drive_id', driveId);
+                
+                // Only treat as Drive file if it looks like a real Google Drive ID (not a small numeric row id)
+                if (driveId.length > 15 && !/^\d+$/.test(driveId)) {
+                    driveIdsToDelete.push(driveId);
+                }
+            }
         }
 
-        // 2. Delete physical file(s) from Google Drive
-        const driveDeleted = await deleteFileFromGoogleDrive(driveIds);
+        // Delete from Google Drive
+        let driveDeleted = false;
+        if (driveIdsToDelete.length > 0) {
+            driveDeleted = await deleteFileFromGoogleDrive(driveIdsToDelete);
+        }
 
         return NextResponse.json({
             status: "success",
-            message: `Deleted ${driveIds.length} image(s) successfully`,
-            deletedCount: driveIds.length,
-            driveIds: driveIds,
+            message: `Deleted ${itemsToDelete.length} image(s) from database and Google Drive successfully`,
+            deletedCount: itemsToDelete.length,
+            items: itemsToDelete,
             driveDeleted: driveDeleted
         }, { status: 200 });
 

@@ -10016,18 +10016,6 @@ export const dummyGalleries = [
     "created_at": "2026-04-23 08:21:44.682781+00"
   },
   {
-    "id": "828",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 08:21:48.234313+00"
-  },
-  {
-    "id": "829",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 08:21:48.32839+00"
-  },
-  {
     "id": "830",
     "drive_id": "1JbjRxIg2PAIXwmkPt0T6uBpJcDawE0QZ",
     "url": "https://drive.google.com/uc?id=1JbjRxIg2PAIXwmkPt0T6uBpJcDawE0QZ",
@@ -10334,22 +10322,10 @@ export const dummyGalleries = [
     "created_at": "2026-04-23 08:44:12.301948+00"
   },
   {
-    "id": "881",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 08:44:12.495817+00"
-  },
-  {
     "id": "882",
     "drive_id": "16NefXuvaNDX7fGYVcNg_a5ERAAAbZay6",
     "url": "https://drive.google.com/uc?id=16NefXuvaNDX7fGYVcNg_a5ERAAAbZay6",
     "created_at": "2026-04-23 08:44:13.139516+00"
-  },
-  {
-    "id": "883",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 08:44:13.705914+00"
   },
   {
     "id": "884",
@@ -10626,12 +10602,6 @@ export const dummyGalleries = [
     "drive_id": "1vwTM3vJD0SZCY1hgZYMEA0zaGMXy9XQZ",
     "url": "https://drive.google.com/uc?id=1vwTM3vJD0SZCY1hgZYMEA0zaGMXy9XQZ",
     "created_at": "2026-04-23 08:55:46.724114+00"
-  },
-  {
-    "id": "930",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 08:55:46.904119+00"
   },
   {
     "id": "931",
@@ -11018,28 +10988,10 @@ export const dummyGalleries = [
     "created_at": "2026-04-23 09:19:19.085211+00"
   },
   {
-    "id": "995",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 09:19:21.660248+00"
-  },
-  {
     "id": "996",
     "drive_id": "1D9PSX4Y0x_81rsIVTRWgUvVIKtLLi3ul",
     "url": "https://drive.google.com/uc?id=1D9PSX4Y0x_81rsIVTRWgUvVIKtLLi3ul",
     "created_at": "2026-04-23 09:19:21.746215+00"
-  },
-  {
-    "id": "997",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 09:19:21.882447+00"
-  },
-  {
-    "id": "998",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 09:19:22.28961+00"
   },
   {
     "id": "999",
@@ -11250,12 +11202,6 @@ export const dummyGalleries = [
     "drive_id": "1OYBssE-Xm9tHwoKbG8H44x1znfiUP0fU",
     "url": "https://drive.google.com/uc?id=1OYBssE-Xm9tHwoKbG8H44x1znfiUP0fU",
     "created_at": "2026-04-23 09:22:00.007192+00"
-  },
-  {
-    "id": "1034",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 09:22:00.199534+00"
   },
   {
     "id": "1035",
@@ -11540,12 +11486,6 @@ export const dummyGalleries = [
     "created_at": "2026-04-23 09:25:46.642631+00"
   },
   {
-    "id": "1082",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 09:25:46.968173+00"
-  },
-  {
     "id": "1083",
     "drive_id": "1etoZ_NdFrsi8Ow48y1bf3A3Y-BNQaIFh",
     "url": "https://drive.google.com/uc?id=1etoZ_NdFrsi8Ow48y1bf3A3Y-BNQaIFh",
@@ -11634,12 +11574,6 @@ export const dummyGalleries = [
     "drive_id": "1ALJpVtWrc-Wrw4nQCYjeGGYY9dyl_4YI",
     "url": "https://drive.google.com/uc?id=1ALJpVtWrc-Wrw4nQCYjeGGYY9dyl_4YI",
     "created_at": "2026-04-23 09:28:46.37227+00"
-  },
-  {
-    "id": "1098",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=undefined",
-    "created_at": "2026-04-23 09:28:47.196075+00"
   },
   {
     "id": "1099",
@@ -12932,36 +12866,6 @@ export const dummyGalleries = [
     "created_at": "2026-07-08 04:57:02.612803+00"
   },
   {
-    "id": "1317",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-07-08 04:57:02.616516+00"
-  },
-  {
-    "id": "1318",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-07-08 04:57:10.774451+00"
-  },
-  {
-    "id": "1319",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-07-08 04:57:26.923937+00"
-  },
-  {
-    "id": "1320",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-07-08 04:57:28.002141+00"
-  },
-  {
-    "id": "1321",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-07-08 04:57:29.140449+00"
-  },
-  {
     "id": "1322",
     "drive_id": "1lHL5LfVcG74csQ_OQugYMeh6lHs8vtwq",
     "url": "https://drive.google.com/uc?id=1lHL5LfVcG74csQ_OQugYMeh6lHs8vtwq",
@@ -13838,36 +13742,6 @@ export const dummyGalleries = [
     "created_at": "2026-08-19 10:19:49.62736+00"
   },
   {
-    "id": "1479",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:19:55.891908+00"
-  },
-  {
-    "id": "1480",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:19:56.736587+00"
-  },
-  {
-    "id": "1481",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:19:56.815005+00"
-  },
-  {
-    "id": "1482",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:19:56.981958+00"
-  },
-  {
-    "id": "1483",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:19:57.629795+00"
-  },
-  {
     "id": "1484",
     "drive_id": "17j5e6T1SbRaheQAJwXpw7et-q2-A-0Xt",
     "url": "https://drive.google.com/uc?id=17j5e6T1SbRaheQAJwXpw7et-q2-A-0Xt",
@@ -13884,54 +13758,6 @@ export const dummyGalleries = [
     "drive_id": "1wgUYQ2AYMY1UyQz0anPYzJa0nlEIyQdM",
     "url": "https://drive.google.com/uc?id=1wgUYQ2AYMY1UyQz0anPYzJa0nlEIyQdM",
     "created_at": "2026-08-19 10:25:36.925228+00"
-  },
-  {
-    "id": "1487",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:25:42.302769+00"
-  },
-  {
-    "id": "1488",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:25:42.355779+00"
-  },
-  {
-    "id": "1489",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:25:42.543942+00"
-  },
-  {
-    "id": "1490",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:25:43.271832+00"
-  },
-  {
-    "id": "1491",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:25:43.84721+00"
-  },
-  {
-    "id": "1492",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:25:44.446854+00"
-  },
-  {
-    "id": "1493",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:25:44.465444+00"
-  },
-  {
-    "id": "1494",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-08-19 10:25:44.651152+00"
   },
   {
     "id": "1495",
@@ -13968,72 +13794,6 @@ export const dummyGalleries = [
     "drive_id": "1m8pEQGX6SP9a2Wj-DwRb6pxWNBhLSBVo",
     "url": "https://drive.google.com/uc?id=1m8pEQGX6SP9a2Wj-DwRb6pxWNBhLSBVo",
     "created_at": "2026-09-15 08:35:25.697516+00"
-  },
-  {
-    "id": "1501",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:35.977087+00"
-  },
-  {
-    "id": "1502",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:36.000987+00"
-  },
-  {
-    "id": "1503",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:36.051523+00"
-  },
-  {
-    "id": "1504",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:36.434858+00"
-  },
-  {
-    "id": "1505",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:37.002139+00"
-  },
-  {
-    "id": "1506",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:37.263201+00"
-  },
-  {
-    "id": "1507",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:37.572555+00"
-  },
-  {
-    "id": "1508",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:38.485253+00"
-  },
-  {
-    "id": "1509",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:39.029757+00"
-  },
-  {
-    "id": "1510",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:40.077697+00"
-  },
-  {
-    "id": "1511",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:35:40.30914+00"
   },
   {
     "id": "1512",
@@ -14088,42 +13848,6 @@ export const dummyGalleries = [
     "drive_id": "1j1_irSE7jmXfpFBNn4qsf-dYAGoPcVJl",
     "url": "https://drive.google.com/uc?id=1j1_irSE7jmXfpFBNn4qsf-dYAGoPcVJl",
     "created_at": "2026-09-15 08:38:18.732681+00"
-  },
-  {
-    "id": "1521",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:38:19.979053+00"
-  },
-  {
-    "id": "1522",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:38:21.317874+00"
-  },
-  {
-    "id": "1523",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:38:21.68577+00"
-  },
-  {
-    "id": "1524",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:38:24.095808+00"
-  },
-  {
-    "id": "1525",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:38:24.849521+00"
-  },
-  {
-    "id": "1526",
-    "drive_id": "",
-    "url": "https://drive.google.com/uc?id=null",
-    "created_at": "2026-09-15 08:38:26.269469+00"
   }
 ];
 

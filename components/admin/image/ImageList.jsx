@@ -15,12 +15,16 @@ import Swal from 'sweetalert2';
 
 const formatImages = (images) => {
   if (!images || !Array.isArray(images)) return [];
-  return images.map((item, idx) => ({
-    id: item.id || String(idx + 1),
-    drive_id: item.drive_id || item.poster || item.file_id || item.id,
-    url: item.url || (item.drive_id ? `https://drive.google.com/uc?id=${item.drive_id}` : ''),
-    created_at: item.created_at || ''
-  })).filter(img => Boolean(img.drive_id));
+  return images.map((item, idx) => {
+    const rawDriveId = item.drive_id || item.poster || item.file_id || '';
+    const cleanDriveId = (rawDriveId && rawDriveId !== 'null' && rawDriveId !== 'undefined') ? String(rawDriveId).trim() : '';
+    return {
+      id: item.id ? String(item.id) : String(idx + 1),
+      drive_id: cleanDriveId,
+      url: item.url || (cleanDriveId ? `https://drive.google.com/uc?id=${cleanDriveId}` : ''),
+      created_at: item.created_at || ''
+    };
+  }).filter(img => Boolean(img.drive_id)); // Only include real images with Drive IDs
 };
 
 export default function ImageList({ images }) {
@@ -140,11 +144,20 @@ export default function ImageList({ images }) {
   };
 
   // Delete Single Image
-  const handleDeleteSingle = async (driveId, e) => {
+  const handleDeleteSingle = async (target, e) => {
     if (e) e.stopPropagation();
+
+    // Support passing either the full item object or driveId string
+    const item = typeof target === 'object' && target !== null
+      ? target
+      : (rawItems.find(i => i.drive_id === target) || { id: null, drive_id: target });
+
+    const driveId = item.drive_id;
+    const rowId = item.id;
+
     const result = await Swal.fire({
       title: 'Delete this image?',
-      text: `Drive ID: ${driveId}`,
+      text: driveId ? `Drive ID: ${driveId}` : `ID: #${rowId}`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
@@ -155,16 +168,21 @@ export default function ImageList({ images }) {
 
     if (result.isConfirmed) {
       try {
-        setDeleteMessage('Deleting image...');
-        await axios.delete(`/api/images?drive_id=${encodeURIComponent(driveId)}`);
+        setDeleteMessage('Deleting image from Google Sheets and Google Drive...');
+        
+        const params = new URLSearchParams();
+        if (rowId) params.append('id', rowId);
+        if (driveId) params.append('drive_id', driveId);
 
-        setRawItems(prev => prev.filter(item => item.drive_id !== driveId));
+        await axios.delete(`/api/images?${params.toString()}`);
+
+        setRawItems(prev => prev.filter(i => (rowId ? i.id !== rowId : i.drive_id !== driveId)));
         setSelectedForDelete(prev => prev.filter(id => id !== driveId));
         if (selectedIdx !== null) setSelectedIdx(null);
         setDeleteMessage('');
         Swal.fire({
           title: 'Deleted!',
-          text: 'The image has been removed from database and Drive.',
+          text: 'The image has been permanently removed from Google Sheets and Google Drive.',
           icon: 'success',
           timer: 1500,
           showConfirmButton: false
@@ -182,7 +200,7 @@ export default function ImageList({ images }) {
 
     const result = await Swal.fire({
       title: 'Delete Selected Images?',
-      text: `You are about to delete ${selectedForDelete.length} image(s) from Google Drive and database.`,
+      text: `You are about to delete ${selectedForDelete.length} image(s) from Google Drive and Google Sheets.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
@@ -195,8 +213,17 @@ export default function ImageList({ images }) {
       try {
         setDeleteMessage(`Deleting ${selectedForDelete.length} image(s)...`);
         
+        // Find full item objects so we send BOTH id and drive_id
+        const itemsPayload = selectedForDelete.map(driveId => {
+          const found = rawItems.find(i => i.drive_id === driveId);
+          return {
+            id: found ? found.id : null,
+            drive_id: driveId
+          };
+        });
+
         await axios.delete('/api/images', {
-          data: { drive_ids: selectedForDelete }
+          data: { items: itemsPayload }
         });
 
         setRawItems((prev) => prev.filter((item) => !selectedForDelete.includes(item.drive_id)));
@@ -205,7 +232,7 @@ export default function ImageList({ images }) {
 
         Swal.fire({
           title: 'Deleted!',
-          text: 'Selected images have been deleted successfully.',
+          text: 'Selected images have been deleted successfully from Google Sheets and Google Drive.',
           icon: 'success',
           timer: 1500,
           showConfirmButton: false
@@ -479,7 +506,7 @@ export default function ImageList({ images }) {
                     </a>
 
                     <button
-                      onClick={(e) => handleDeleteSingle(item.drive_id, e)}
+                      onClick={(e) => handleDeleteSingle(item, e)}
                       className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
                       title="Delete Image"
                     >
@@ -622,7 +649,7 @@ export default function ImageList({ images }) {
 
               {/* Delete Button */}
               <button
-                onClick={() => handleDeleteSingle(filteredItems[selectedIdx].drive_id)}
+                onClick={() => handleDeleteSingle(filteredItems[selectedIdx])}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold transition cursor-pointer"
               >
                 <FiTrash2 />
