@@ -1,15 +1,12 @@
-const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBitNkcvoaAK7KFPo2dXZxh9WEeIlRaK1HwZOClAvtNmtUS7p1U7JYqJmnAcWKvNumRw/exec";
-const DEFAULT_SCRIPT_URL_DELETE = "https://script.google.com/macros/s/AKfycbzzk_p0ysLCF7SA6yUp6PZO5k62VufN5ER88mj0wd9QhT-iCZPtWo4QGguzZMTq35aUxw/exec";
+const DEFAULT_DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbzBitNkcvoaAK7KFPo2dXZxh9WEeIlRaK1HwZOClAvtNmtUS7p1U7JYqJmnAcWKvNumRw/exec";
 
-export function getDriveUploadApiUrl() {
-  return process.env.NEXT_PUBLIC_GOOGLE_DRIVE_API_URL || DEFAULT_SCRIPT_URL;
+export function getDriveApiUrl() {
+  return process.env.NEXT_PUBLIC_GOOGLE_DRIVE_API_URL || DEFAULT_DRIVE_API_URL;
 }
 
-export function getDriveDeleteApiUrl() {
-  return process.env.NEXT_PUBLIC_GOOGLE_DRIVE_DELETE_URL || 
-         process.env.NEXT_PUBLIC_GOOGLE_DRIVE_API_URL || 
-         DEFAULT_SCRIPT_URL_DELETE;
-}
+// Backward-compatibility aliases (pointing to the single unified Drive API URL)
+export const getDriveUploadApiUrl = getDriveApiUrl;
+export const getDriveDeleteApiUrl = getDriveApiUrl;
 
 export async function uploadImageInGoogleDrive(file) {
   if (!file) return null;
