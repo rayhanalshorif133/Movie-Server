@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const DEFAULT_DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbzBitNkcvoaAK7KFPo2dXZxh9WEeIlRaK1HwZOClAvtNmtUS7p1U7JYqJmnAcWKvNumRw/exec";
+const DEFAULT_DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbyj-zHReigYVh_pBBv0LEIZhnGk3qISfHU87iaeqhP9PkrHA9RGAtcU8nQEq-N8buUg/exec";
 
 function getDriveApiUrl() {
   return process.env.NEXT_GOOGLE_DRIVE_API_URL || 
