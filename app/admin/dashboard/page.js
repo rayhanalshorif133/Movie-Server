@@ -255,10 +255,6 @@ export default async function Page() {
                             src={posterUrl}
                             alt={movie.title}
                             className="w-11 h-14 object-cover rounded-lg bg-gray-100 border border-gray-200 shrink-0"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800";
-                            }}
                           />
                           <div className="min-w-0">
                             <h4 className="text-sm font-bold text-gray-900 truncate">
@@ -330,10 +326,6 @@ export default async function Page() {
                         src={getGoogleDriveImageUrl(game.poster)}
                         alt={game.title}
                         className="w-12 h-12 object-cover rounded-lg bg-gray-100 shrink-0 border border-gray-200"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800";
-                        }}
                       />
                       <div className="min-w-0 flex-1">
                         <h4 className="text-xs font-bold text-gray-900 truncate">
