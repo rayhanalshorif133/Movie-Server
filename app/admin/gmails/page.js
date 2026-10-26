@@ -7,6 +7,8 @@ import GmailList from '@/components/admin/gmail/GmailList';
 
 
 // Metadata for the page
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   return {
     title: "Gmails | Admin Panel",

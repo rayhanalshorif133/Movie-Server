@@ -109,7 +109,13 @@ export default function UpdateMovie({ movie }) {
     e.preventDefault();
     setLoading(true);
 
-    axios.put('/api/movies/', formData)
+    const payload = {
+      ...formData,
+      id: formData._id || formData.id || movie?.id,
+      _id: formData._id || formData.id || movie?.id
+    };
+
+    axios.put('/api/movies', payload)
       .then(response => {
         Swal.fire({
           icon: 'success',

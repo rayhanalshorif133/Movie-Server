@@ -5,6 +5,8 @@ import { createClient } from '@/utils/supabase/server';
 // Icons import korchi
 import { Film, Gamepad2, Mail, MailCheck, MailWarning } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   return {
     title: "Dashboard | Admin Panel",

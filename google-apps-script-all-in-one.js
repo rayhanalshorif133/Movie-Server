@@ -227,11 +227,11 @@ function doPost(e) {
       var targetRow = -1;
 
       for (var i = 1; i < data.length; i++) {
-        if (targetId && idColIndex !== -1 && String(data[i][idColIndex]) === String(targetId)) {
+        if (targetId && idColIndex !== -1 && String(data[i][idColIndex]).trim() === String(targetId).trim()) {
           targetRow = i + 1;
           break;
         }
-        if (targetEmail && emailColIndex !== -1 && String(data[i][emailColIndex]).toLowerCase() === String(targetEmail).toLowerCase()) {
+        if (targetEmail && emailColIndex !== -1 && String(data[i][emailColIndex]).trim().toLowerCase() === String(targetEmail).trim().toLowerCase()) {
           targetRow = i + 1;
           break;
         }
@@ -241,12 +241,18 @@ function doPost(e) {
         return jsonResponse({ status: "error", message: "Matching record not found to update" }, 404);
       }
 
+      var currentRowValues = data[targetRow - 1];
       for (var c = 0; c < headers.length; c++) {
         var headerName = headers[c];
         if (updatePayload[headerName] !== undefined) {
-          sheet.getRange(targetRow, c + 1).setValue(updatePayload[headerName]);
+          var val = updatePayload[headerName];
+          if (Array.isArray(val) || (typeof val === 'object' && val !== null)) {
+            val = JSON.stringify(val);
+          }
+          currentRowValues[c] = (val !== null && val !== undefined) ? val : "";
         }
       }
+      sheet.getRange(targetRow, 1, 1, headers.length).setValues([currentRowValues]);
 
       return jsonResponse({
         status: "success",

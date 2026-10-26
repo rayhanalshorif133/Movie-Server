@@ -7,6 +7,8 @@ import { CgGames } from "react-icons/cg";
 
 
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
     return {
         title: "Game List | Admin Panel",

@@ -5,6 +5,8 @@ import { HiOutlineFilm } from "react-icons/hi"
 import MovieList from '@/components/admin/movie/MovieList'
 import Header from '@/components/admin/Header'
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
     return {
         title: "Movie List | Admin Panel",

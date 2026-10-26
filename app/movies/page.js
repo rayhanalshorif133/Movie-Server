@@ -3,6 +3,8 @@ import MovieManager from "@/components/public/movie/MovieManager";
 import { createClient } from '@/utils/supabase/server';
 import { dummyMovies } from '@/utils/dummyData';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   return {
     title: "Movies",

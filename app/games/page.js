@@ -3,6 +3,8 @@ import Header from "@/components/public/Header";
 import { createClient } from '@/utils/supabase/server';
 import { dummyGames, dummyGameTypes } from '@/utils/dummyData';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   return {
     title: "Games & Assets",

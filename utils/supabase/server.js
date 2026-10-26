@@ -6,13 +6,19 @@ const cache = {
 };
 const CACHE_TTL_MS = 5000; // 5 seconds cache to avoid duplicate calls in parallel
 
+const FALLBACK_GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyopn16A3wM7tulOBRs18t6Xgb2_Bo4k_n_W__4u-r13VTdjHxy2uIP1e1Wvjh9c0ZptQ/exec";
+
+function getApiUrl() {
+  return process.env.NEXT_GOOGLE_SHEET_API_URL || FALLBACK_GOOGLE_SHEET_API_URL;
+}
+
 export async function fetchSheetData(sheetName) {
   const now = Date.now();
   if (cache.data[sheetName] && (now - (cache.timestamp[sheetName] || 0) < CACHE_TTL_MS)) {
     return cache.data[sheetName];
   }
 
-  const apiUrl = process.env.NEXT_GOOGLE_SHEET_API_URL;
+  const apiUrl = getApiUrl();
   if (!apiUrl) return null;
 
   try {
@@ -41,11 +47,15 @@ export async function fetchSheetData(sheetName) {
 }
 
 export async function mutateSheet(sheetName, action, payload) {
-  const apiUrl = process.env.NEXT_GOOGLE_SHEET_API_URL;
-  if (!apiUrl) return null;
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    console.error("NEXT_GOOGLE_SHEET_API_URL is missing!");
+    return null;
+  }
 
   try {
     cache.data[sheetName] = null; // Invalidate cache immediately on mutation
+    cache.timestamp[sheetName] = 0;
     const res = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -53,9 +63,11 @@ export async function mutateSheet(sheetName, action, payload) {
         sheet: sheetName,
         action: action,
         ...payload
-      })
+      }),
+      redirect: 'follow'
     });
-    return await res.json();
+    const json = await res.json();
+    return json;
   } catch (err) {
     console.error(`Error mutating sheet [${sheetName}]:`, err);
   }
@@ -153,9 +165,10 @@ class MockQueryBuilder {
       }
       let data = sourceData.map(item => ({ ...item }));
 
-      // 2. Handle Insert Mutation
+      // 2. Handle Insert Mutation (Awaited for serverless environments)
       if (this.pendingInsert) {
         const rows = Array.isArray(this.pendingInsert) ? this.pendingInsert : [this.pendingInsert];
+        const insertPromises = [];
         for (const r of rows) {
           const item = {
             id: r.id || String(Date.now()),
@@ -164,16 +177,17 @@ class MockQueryBuilder {
           };
           data.push(item);
           if (dbStore[this.table]) dbStore[this.table].push(item);
-          mutateSheet(this.table, 'add', { data: item }).catch(() => {});
+          insertPromises.push(mutateSheet(this.table, 'add', { data: item }));
         }
+        await Promise.all(insertPromises);
       }
 
       // 3. Apply Filters
       for (const f of this.filters) {
         if (f.type === 'eq') {
           data = data.filter(item => {
-            if (item[f.column] === undefined) return false;
-            return String(item[f.column]).toLowerCase() === String(f.value).toLowerCase();
+            if (item[f.column] === undefined || item[f.column] === null) return false;
+            return String(item[f.column]).trim().toLowerCase() === String(f.value).trim().toLowerCase();
           });
         } else if (f.type === 'ilike') {
           const cleanPattern = String(f.pattern || '').replace(/%/g, '').toLowerCase();
@@ -198,18 +212,30 @@ class MockQueryBuilder {
         }
       }
 
-      // 4. Handle Update Mutation
+      // 4. Handle Update Mutation (Awaited for serverless environments)
       if (this.pendingUpdate) {
-        for (const d of data) {
-          mutateSheet(this.table, 'update', { id: d.id, data: this.pendingUpdate }).catch(() => {});
-        }
+        const updatePromises = data.map(d =>
+          mutateSheet(this.table, 'update', { id: d.id, data: this.pendingUpdate })
+        );
+        await Promise.all(updatePromises);
         data = data.map(d => ({ ...d, ...this.pendingUpdate }));
+        if (dbStore[this.table]) {
+          dbStore[this.table] = dbStore[this.table].map(item => {
+            const match = data.find(d => String(d.id) === String(item.id));
+            return match ? { ...item, ...this.pendingUpdate } : item;
+          });
+        }
       }
 
-      // 5. Handle Delete Mutation
+      // 5. Handle Delete Mutation (Awaited for serverless environments)
       if (this.pendingDelete) {
-        for (const d of data) {
-          mutateSheet(this.table, 'delete', { id: d.id }).catch(() => {});
+        const deletePromises = data.map(d =>
+          mutateSheet(this.table, 'delete', { id: d.id })
+        );
+        await Promise.all(deletePromises);
+        if (dbStore[this.table]) {
+          const deletedIds = new Set(data.map(d => String(d.id)));
+          dbStore[this.table] = dbStore[this.table].filter(item => !deletedIds.has(String(item.id)));
         }
         data = [];
       }
@@ -252,64 +278,21 @@ class MockQueryBuilder {
         });
       }
 
-      if (this.isHead) {
-        return resolve({
-          data: null,
-          count: totalCount,
-          error: null
-        });
-      }
-
       return resolve({
-        data: result,
+        data: this.isHead ? null : result,
         count: totalCount,
         error: null
       });
+
     } catch (err) {
-      return resolve({
-        data: [],
-        count: 0,
-        error: { message: err.message }
-      });
+      console.error(`MockQueryBuilder error on [${this.table}]:`, err);
+      return resolve({ data: null, count: 0, error: { message: err.message } });
     }
   }
 }
 
-const mockAuth = {
-  async getUser() {
-    return {
-      data: {
-        user: {
-          id: 'mock-admin-id',
-          email: 'admin@movieserver.com',
-          user_metadata: { role: 'admin' }
-        }
-      },
-      error: null
-    };
-  },
-  async signInWithPassword({ email, password }) {
-    return {
-      data: {
-        user: {
-          id: 'mock-admin-id',
-          email: email || 'admin@movieserver.com'
-        },
-        session: { access_token: 'mock-token' }
-      },
-      error: null
-    };
-  },
-  async signOut() {
-    return { error: null };
-  }
-};
-
 export async function createClient() {
   return {
-    from(tableName) {
-      return new MockQueryBuilder(tableName);
-    },
-    auth: mockAuth
+    from: (tableName) => new MockQueryBuilder(tableName)
   };
 }
