@@ -21,8 +21,28 @@ export async function POST(request) {
       body: JSON.stringify(payload),
     });
 
-    const result = await response.json();
-    return NextResponse.json(result);
+    const text = await response.text();
+    try {
+      const json = JSON.parse(text);
+      return NextResponse.json(json, { status: response.status });
+    } catch (parseErr) {
+      if (response.status === 403) {
+        return NextResponse.json({
+          status: "error",
+          error: "Google Apps Script 403 Forbidden. Permission is not set to 'Anyone'."
+        }, { status: 403 });
+      }
+      if (response.status === 404) {
+        return NextResponse.json({
+          status: "error",
+          error: "Google Apps Script 404 Not Found. Script URL is invalid or deleted."
+        }, { status: 404 });
+      }
+      return NextResponse.json({
+        status: "error",
+        error: `Invalid response from Google Drive script (${response.status}): ${text.slice(0, 150)}`
+      }, { status: 502 });
+    }
   } catch (error) {
     console.error("Drive Proxy Error:", error);
     return NextResponse.json({ status: "error", error: error.message }, { status: 500 });
@@ -47,3 +67,4 @@ export async function GET(request) {
     return NextResponse.json({ status: "error", error: error.message }, { status: 500 });
   }
 }
+

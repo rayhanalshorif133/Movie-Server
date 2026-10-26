@@ -7,6 +7,9 @@ import GmailList from '@/components/admin/gmail/GmailList';
 import GmailInventoryList from '@/components/admin/gmail/GmailInventoryList';
 
 
+// Force dynamic rendering since data comes from external Google Sheets
+export const dynamic = 'force-dynamic';
+
 // Metadata for the page
 export async function generateMetadata() {
   return {

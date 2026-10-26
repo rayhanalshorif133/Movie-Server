@@ -95,21 +95,38 @@ function doPost(e) {
     var action = requestData.action;
 
     // ---------------------------------------------------------------------
-    // ১. DELETE FILE (ফাইল মুছে ফেলা / ট্র্যাশে পাঠানো)
+    // ১. DELETE FILE (ফাইল মুছে ফেলা / ট্র্যাশে পাঠানো - একক বা মাল্টিপল)
     // ---------------------------------------------------------------------
-    if (action === "delete") {
-      var fileId = requestData.fileId || requestData.id;
-      if (!fileId) {
-        return jsonResponse({ status: "error", error: "Missing fileId parameter" }, 400);
+    if (action === "delete" || action === "batchDelete") {
+      var fileIds = requestData.fileIds || 
+                    (requestData.fileId ? [requestData.fileId] : 
+                    (requestData.id ? [requestData.id] : []));
+      
+      if (!Array.isArray(fileIds) || fileIds.length === 0) {
+        return jsonResponse({ status: "error", error: "Missing fileId or fileIds parameter" }, 400);
       }
 
-      var file = DriveApp.getFileById(fileId);
-      file.setTrashed(true); // Move to trash safely
+      var deleted = [];
+      var errors = [];
+
+      for (var i = 0; i < fileIds.length; i++) {
+        var fId = String(fileIds[i]).trim();
+        if (!fId) continue;
+        try {
+          var file = DriveApp.getFileById(fId);
+          file.setTrashed(true); // Move to trash safely
+          deleted.push(fId);
+        } catch (fErr) {
+          errors.push({ id: fId, error: fErr.toString() });
+        }
+      }
 
       return jsonResponse({
         status: "success",
-        message: "File moved to trash successfully",
-        fileId: fileId
+        message: deleted.length + " file(s) moved to trash successfully",
+        deletedCount: deleted.length,
+        deletedIds: deleted,
+        errors: errors.length > 0 ? errors : undefined
       });
     }
 

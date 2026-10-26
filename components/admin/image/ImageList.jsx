@@ -157,7 +157,6 @@ export default function ImageList({ images }) {
       try {
         setDeleteMessage('Deleting image...');
         await axios.delete(`/api/images?drive_id=${encodeURIComponent(driveId)}`);
-        deleteFileFromGoogleDrive(driveId).catch(() => {});
 
         setRawItems(prev => prev.filter(item => item.drive_id !== driveId));
         setSelectedForDelete(prev => prev.filter(id => id !== driveId));
@@ -165,14 +164,14 @@ export default function ImageList({ images }) {
         setDeleteMessage('');
         Swal.fire({
           title: 'Deleted!',
-          text: 'The image has been removed.',
+          text: 'The image has been removed from database and Drive.',
           icon: 'success',
           timer: 1500,
           showConfirmButton: false
         });
       } catch (err) {
         setDeleteMessage('');
-        Swal.fire('Error', 'Failed to delete image.', 'error');
+        Swal.fire('Error', err?.response?.data?.error || 'Failed to delete image.', 'error');
       }
     }
   };
@@ -196,12 +195,9 @@ export default function ImageList({ images }) {
       try {
         setDeleteMessage(`Deleting ${selectedForDelete.length} image(s)...`);
         
-        const deletePromises = selectedForDelete.map(async (id) => {
-          await axios.delete(`/api/images?drive_id=${encodeURIComponent(id)}`);
-          return deleteFileFromGoogleDrive(id).catch(() => {});
+        await axios.delete('/api/images', {
+          data: { drive_ids: selectedForDelete }
         });
-
-        await Promise.all(deletePromises);
 
         setRawItems((prev) => prev.filter((item) => !selectedForDelete.includes(item.drive_id)));
         setSelectedForDelete([]);
@@ -216,7 +212,7 @@ export default function ImageList({ images }) {
         });
       } catch (error) {
         setDeleteMessage('');
-        Swal.fire('Error!', 'Something went wrong while deleting.', 'error');
+        Swal.fire('Error!', error?.response?.data?.error || 'Something went wrong while deleting.', 'error');
       }
     }
   };

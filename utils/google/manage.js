@@ -96,14 +96,16 @@ export function getFileType(file) {
   return file.type ? typeFromMime : typeFromName;
 };
 
-export async function deleteFileFromGoogleDrive(fileId) {
-  if (!fileId) return null;
+export async function deleteFileFromGoogleDrive(fileIdOrIds) {
+  if (!fileIdOrIds) return false;
+  const isArray = Array.isArray(fileIdOrIds);
+  const ids = isArray ? fileIdOrIds.filter(Boolean) : [fileIdOrIds];
+  if (ids.length === 0) return false;
 
   try {
-    const payload = {
-      action: 'delete',
-      fileId: fileId,
-    };
+    const payload = ids.length === 1
+      ? { action: 'delete', fileId: ids[0] }
+      : { action: 'batchDelete', fileIds: ids };
 
     const deleteUrl = getDriveDeleteApiUrl();
     const response = await fetch(deleteUrl, {
@@ -114,17 +116,24 @@ export async function deleteFileFromGoogleDrive(fileId) {
       body: JSON.stringify(payload),
     });
 
-    const result = await response.json();
+    const text = await response.text();
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      console.warn("Drive delete raw response:", text.slice(0, 150));
+      return false;
+    }
 
-    if (result.status === "success") {
-      console.log("File deleted successfully");
+    if (result && (result.status === "success" || result.success)) {
+      console.log(`Deleted ${ids.length} file(s) from Drive successfully.`);
       return true;
     } else {
-      console.error("Delete Failed:", result.error);
+      console.error("Delete Failed:", result ? (result.error || result.message) : "Unknown error");
       return false;
     }
   } catch (error) {
-    console.error("Network/API Error:", error);
+    console.error("Delete Network/API Error:", error);
     return false;
   }
 }
