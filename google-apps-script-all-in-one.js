@@ -10,6 +10,7 @@
  * - gmails
  * - gmail_inventory
  * - hitlogs
+ * - galleries
  * =========================================================================
  */
 
@@ -22,12 +23,16 @@ function getTargetSpreadsheet() {
   }
 }
 
-function getSheetByName(sheetName) {
+function getSheetByName(sheetName, autoCreate) {
   var ss = getTargetSpreadsheet();
   var name = sheetName || "movies";
   var target = ss.getSheetByName(name);
   
   if (!target) {
+    if (autoCreate) {
+      target = ss.insertSheet(name);
+      return target;
+    }
     var allSheets = ss.getSheets().map(function(s) { return s.getName(); });
     throw new Error("Sheet '" + name + "' not found. Available sheets: " + allSheets.join(", "));
   }
@@ -42,7 +47,15 @@ function doGet(e) {
     var params = (e && e.parameter) ? e.parameter : {};
     var sheetName = params.sheet || params.table || "movies";
     var action = params.action || "getAll";
-    var sheet = getSheetByName(sheetName);
+
+    var sheet;
+    try {
+      sheet = getSheetByName(sheetName, false);
+    } catch (err) {
+      // If sheet doesn't exist yet, return empty list gracefully instead of 500 error
+      return jsonResponse({ status: "success", sheet: sheetName, count: 0, data: [] });
+    }
+
     var data = sheet.getDataRange().getValues();
 
     if (data.length <= 1) {
@@ -62,6 +75,9 @@ function doGet(e) {
       if (params.id && String(rowObj.id) === String(params.id)) {
         return jsonResponse({ status: "success", sheet: sheetName, data: rowObj });
       }
+      if (params.drive_id && String(rowObj.drive_id) === String(params.drive_id)) {
+        return jsonResponse({ status: "success", sheet: sheetName, data: rowObj });
+      }
       if (params.email && String(rowObj.email).toLowerCase() === String(params.email).toLowerCase()) {
         return jsonResponse({ status: "success", sheet: sheetName, data: rowObj });
       }
@@ -69,7 +85,7 @@ function doGet(e) {
       rows.push(rowObj);
     }
 
-    if (params.id || params.email) {
+    if (params.id || params.drive_id || params.email) {
       return jsonResponse({ status: "error", message: "Record not found" }, 404);
     }
 
@@ -90,7 +106,7 @@ function doGet(e) {
 // -------------------------------------------------------------
 function doPost(e) {
   var lock = LockService.getScriptLock();
-  lock.tryLock(10000);
+  lock.tryLock(15000);
 
   try {
     var requestData = {};
@@ -106,9 +122,34 @@ function doPost(e) {
 
     var sheetName = requestData.sheet || requestData.table || "movies";
     var action = requestData.action || "add";
-    var sheet = getSheetByName(sheetName);
+
+    // Auto-create sheet if it does not exist
+    var sheet = getSheetByName(sheetName, true);
     var data = sheet.getDataRange().getValues();
-    var headers = data[0].map(function(h) { return String(h).trim(); });
+    var headers = (data.length > 0 && data[0].length > 0 && data[0][0] !== "")
+      ? data[0].map(function(h) { return String(h).trim(); })
+      : [];
+
+    // Ensure header row exists if sheet was newly created or blank
+    if (headers.length === 0) {
+      var initialHeaders = requestData.headers;
+      if (!initialHeaders && requestData.data) {
+        initialHeaders = Object.keys(requestData.data);
+      }
+      if (!initialHeaders && requestData.rows && requestData.rows.length > 0) {
+        initialHeaders = Object.keys(requestData.rows[0]);
+      }
+      if (!initialHeaders) {
+        if (sheetName === "galleries") {
+          initialHeaders = ["id", "drive_id", "url", "created_at"];
+        } else {
+          initialHeaders = ["id", "created_at"];
+        }
+      }
+      sheet.appendRow(initialHeaders);
+      headers = initialHeaders;
+      data = sheet.getDataRange().getValues();
+    }
 
     // ---------------------------------------------------------
     // ১. ADD / CREATE (একটি রো যোগ করা)
@@ -215,19 +256,25 @@ function doPost(e) {
     // ---------------------------------------------------------
     else if (action === "update") {
       var targetId = requestData.id;
+      var targetDriveId = requestData.drive_id;
       var targetEmail = requestData.email;
       var updatePayload = requestData.data || requestData;
 
-      if (!targetId && !targetEmail) {
-        return jsonResponse({ status: "error", message: "Either 'id' or 'email' is required to update" }, 400);
+      if (!targetId && !targetDriveId && !targetEmail) {
+        return jsonResponse({ status: "error", message: "Either 'id', 'drive_id', or 'email' is required to update" }, 400);
       }
 
       var idColIndex = headers.indexOf("id");
+      var driveIdColIndex = headers.indexOf("drive_id");
       var emailColIndex = headers.indexOf("email");
       var targetRow = -1;
 
       for (var i = 1; i < data.length; i++) {
         if (targetId && idColIndex !== -1 && String(data[i][idColIndex]).trim() === String(targetId).trim()) {
+          targetRow = i + 1;
+          break;
+        }
+        if (targetDriveId && driveIdColIndex !== -1 && String(data[i][driveIdColIndex]).trim() === String(targetDriveId).trim()) {
           targetRow = i + 1;
           break;
         }
@@ -267,21 +314,24 @@ function doPost(e) {
     // ---------------------------------------------------------
     else if (action === "delete") {
       var delId = requestData.id;
+      var delDriveId = requestData.drive_id;
       var delEmail = requestData.email;
 
-      if (!delId && !delEmail) {
-        return jsonResponse({ status: "error", message: "Either 'id' or 'email' is required to delete" }, 400);
+      if (!delId && !delDriveId && !delEmail) {
+        return jsonResponse({ status: "error", message: "Either 'id', 'drive_id', or 'email' is required to delete" }, 400);
       }
 
       var idIdx = headers.indexOf("id");
+      var driveIdIdx = headers.indexOf("drive_id");
       var emailIdx = headers.indexOf("email");
       var deleted = false;
 
       for (var i = data.length - 1; i >= 1; i--) {
         var matchId = delId && idIdx !== -1 && String(data[i][idIdx]) === String(delId);
+        var matchDriveId = delDriveId && driveIdIdx !== -1 && String(data[i][driveIdIdx]) === String(delDriveId);
         var matchEmail = delEmail && emailIdx !== -1 && String(data[i][emailIdx]).toLowerCase() === String(delEmail).toLowerCase();
 
-        if (matchId || matchEmail) {
+        if (matchId || matchDriveId || matchEmail) {
           sheet.deleteRow(i + 1);
           deleted = true;
           break;

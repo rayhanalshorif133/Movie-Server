@@ -35,7 +35,7 @@ export default function MultiImageUploader({ setDriveIds }) {
           const driveId = await uploadImageInGoogleDrive(fileObj.file);
           
           // Database-e save kora
-          await axios.post('/api/images/', {
+          await axios.post('/api/images', {
             drive_id: driveId,
             url: `https://drive.google.com/uc?id=${driveId}`
           });
@@ -95,7 +95,7 @@ export default function MultiImageUploader({ setDriveIds }) {
         // Drive ebong DB theke delete kora (background-e)
         if (file.id) {
           try {
-            await axios.delete(`/api/images/?drive_id=${file.id}`);
+            await axios.delete(`/api/images?drive_id=${file.id}`);
             await deleteFileFromGoogleDrive(file.id);
           } catch (err) {
             console.error("Delete error:", err);
