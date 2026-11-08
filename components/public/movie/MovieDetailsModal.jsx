@@ -8,46 +8,86 @@ import Swal from "sweetalert2";
 export default function MovieDetailsModal({ movie, onClose }) {
     const [isPreviewing, setIsPreviewing] = useState(false);
 
+    const handleClose = () => {
+        // Clean URL parameters when closing modal
+        if (typeof window !== 'undefined') {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('id');
+            url.searchParams.delete('s');
+            const cleanQuery = url.searchParams.toString();
+            window.history.replaceState(null, '', url.pathname + (cleanQuery ? `?${cleanQuery}` : ''));
+        }
+        onClose();
+    };
+
     const handleShare = async () => {
-        document.title = movie.title;
+        if (!movie) return;
+        document.title = movie.title || "Movie";
 
-        let shareUrl = window.location.href;
-
-        try {
-            const response = await axios.post('/api/movies/share', {
-                movieId: movie.id,
-                movieTitle: movie.title,
-            });
-            
-            if (response.data?.data?.share_data) {
-                shareUrl = `${window.location.origin}/?s=${response.data.data.share_data}`;
-            }
-        } catch (apiError) {
-            console.error("Error triggering share API:", apiError);
+        // Construct direct movie URL using current origin and path
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        const pathname = typeof window !== 'undefined' && window.location.pathname.startsWith('/movies') ? '/movies' : '';
+        
+        let directUrl = `${origin}${pathname}/?id=${movie.id}`;
+        if (movie.share_data) {
+            directUrl = `${origin}${pathname}/?id=${movie.id}&s=${movie.share_data}`;
         }
 
-        const shareData = {
-            title: movie.title,
-            text: `Check out ${movie.title} on Movies-Server!`,
-            url: shareUrl,
-        };
-
-        if (navigator.share) {
+        // Copy directly to user clipboard immediately
+        let copied = false;
+        if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
             try {
-                await navigator.share(shareData);
-            } catch (error) {
-                console.error("Error sharing:", error);
+                await navigator.clipboard.writeText(directUrl);
+                copied = true;
+            } catch (clipErr) {
+                console.warn("Direct clipboard write failed, trying fallback:", clipErr);
             }
-        } else {
-            await navigator.clipboard.writeText(shareUrl);
-            Swal.fire({
-                title: "Link Copied!",
-                text: "The movie link has been copied to your clipboard.",
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false,
-            });
         }
+
+        if (!copied && typeof document !== 'undefined') {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = directUrl;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                copied = document.execCommand("copy");
+                document.body.removeChild(textArea);
+            } catch (err) {
+                console.error("Fallback copy failed:", err);
+            }
+        }
+
+        // Update URL bar in browser
+        if (typeof window !== 'undefined') {
+            window.history.replaceState(null, '', directUrl);
+        }
+
+        // Visual feedback confirming direct link copy
+        Swal.fire({
+            title: "Movie Link Copied! 🎬",
+            html: `
+                <div class="text-left space-y-2 mt-2">
+                    <p class="text-sm text-gray-300">Direct link for <b class="text-pink-400">"${movie.title}"</b> has been copied to your clipboard:</p>
+                    <div class="p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-xs font-mono text-cyan-300 break-all select-all">
+                        ${directUrl}
+                    </div>
+                    <p class="text-[11px] text-gray-400">Opening this link will display this movie directly.</p>
+                </div>
+            `,
+            icon: "success",
+            background: "#0f172a",
+            color: "#f8fafc",
+            confirmButtonColor: "#ec4899",
+            confirmButtonText: "OK",
+            timer: 3500,
+            timerProgressBar: true
+        });
+
+        // Background sync to ensure token is populated on database
+        axios.post('/api/movies/share', { movieId: movie.id }).catch(() => {});
     };
 
     return (
@@ -56,7 +96,7 @@ export default function MovieDetailsModal({ movie, onClose }) {
 
                 {/* Close Button */}
                 <button
-                    onClick={onClose}
+                    onClick={handleClose}
                     className={`absolute cursor-pointer top-4 ${isPreviewing ? 'right-15' : 'right-4'} z-20 bg-black/50 hover:bg-red-500 text-white p-2 rounded-full transition hover:rotate-90`}
                 >
                     <RxCross2 />
@@ -109,20 +149,16 @@ export default function MovieDetailsModal({ movie, onClose }) {
                                         onClick={() => setIsPreviewing(true)}
                                         className="relative cursor-pointer group w-full h-16 overflow-hidden rounded-xl p-0.5 transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(37,99,235,0.3)]"
                                     >
-                                        <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#3b82f6_0%,#a855f7_50%,#3b82f6_100%)] group-hover:opacity-100 opacity-40 transition-opacity"></div>
+                                        <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#e11d48_0%,#ec4899_50%,#e11d48_100%)] group-hover:opacity-100 opacity-60 transition-opacity"></div>
                                         <div className="relative flex h-full w-full items-center justify-center gap-3 rounded-[10px] bg-slate-900 px-7 py-2 text-white transition-all duration-300 group-hover:bg-slate-900/80 backdrop-blur-xl">
-                                            <svg className="w-6 h-6 fill-current text-blue-400 group-hover:text-blue-300 transition-colors" viewBox="0 0 24 24">
-                                                <path d="M8 5v14l11-7z" />
-                                            </svg>
                                             <span className="text-sm font-bold tracking-widest uppercase">Watch Now</span>
                                         </div>
                                     </button>
 
-                                    {/* Download Button */}
-
+                                    {/* Download Now Button */}
                                     <button
-                                        onClick={() => { googleDriveToDownload(movie.url) }}
-                                        className="relative  cursor-pointer group w-full h-16 overflow-hidden rounded-xl p-0.5 transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(37,99,235,0.3)]"
+                                        onClick={() => googleDriveToDownload(movie.url)}
+                                        className="relative cursor-pointer group w-full h-16 overflow-hidden rounded-xl p-0.5 transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(37,99,235,0.3)]"
                                     >
                                         <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#3b82f6_0%,#a855f7_50%,#3b82f6_100%)] group-hover:opacity-100 opacity-40 transition-opacity"></div>
                                         <div className="relative flex h-full w-full items-center justify-center gap-3 rounded-[10px] bg-slate-900 px-7 py-2 text-white transition-all duration-300 group-hover:bg-slate-900/80 backdrop-blur-xl">
@@ -137,7 +173,7 @@ export default function MovieDetailsModal({ movie, onClose }) {
                                     >
                                         <div className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#3b82f6_0%,#a855f7_50%,#3b82f6_100%)] group-hover:opacity-100 opacity-40 transition-opacity"></div>
                                         <div className="relative flex h-full w-full items-center justify-center gap-3 rounded-[10px] bg-slate-900 px-7 py-2 text-white transition-all duration-300 group-hover:bg-slate-900/80 backdrop-blur-xl">
-                                            <span className="text-sm font-bold tracking-widest uppercase flex"><RxShare1 className="text-lg mx-2" /> Share Movie</span>
+                                            <span className="text-sm font-bold tracking-widest uppercase flex"><RxShare1 className="text-lg mx-2" /> Share Movie (Copy Link)</span>
                                         </div>
                                     </button>
                                 </div>

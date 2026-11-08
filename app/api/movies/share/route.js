@@ -7,14 +7,20 @@ export async function GET(request) {
         const supabase = await createClient();
         const { searchParams } = new URL(request.url);
         const s = searchParams.get('s');
+        const id = searchParams.get('id');
 
-        if (!s) return NextResponse.json({ error: "Share token is required" }, { status: 400 });
+        if (!s && !id) {
+            return NextResponse.json({ error: "Share token or Movie ID is required" }, { status: 400 });
+        }
 
-        const { data, error } = await supabase
-            .from('movies')
-            .select('*')
-            .eq('share_data', s)
-            .maybeSingle();
+        let query = supabase.from('movies').select('*');
+        if (s) {
+            query = query.eq('share_data', s);
+        } else if (id) {
+            query = query.eq('id', id);
+        }
+
+        const { data, error } = await query.maybeSingle();
 
         if (error) return NextResponse.json({ error: error.message }, { status: 500 });
         if (!data) return NextResponse.json({ error: "Movie not found" }, { status: 404 });
@@ -28,50 +34,36 @@ export async function GET(request) {
 export async function POST(request) {
     try {
         const supabase = await createClient();
-        const { movieId } = await request.json();
+        const body = await request.json();
+        const movieId = body.movieId || body.id;
 
         if (!movieId) {
             return NextResponse.json({ error: "Movie ID is required" }, { status: 400 });
         }
 
-        const randomString = crypto.randomBytes(10).toString('hex');
-
-        const { data: updatedData, error: updateError } = await supabase
+        const { data: movie } = await supabase
             .from('movies')
-            .update({ share_data: randomString })
+            .select('*')
             .eq('id', movieId)
-            .is('share_data', null)
-            .select();
+            .maybeSingle();
 
-        if (updateError) {
-            return NextResponse.json({ error: updateError.message }, { status: 500 });
+        if (!movie) {
+            return NextResponse.json({ error: "Movie not found" }, { status: 404 });
         }
 
-        if (!updatedData || updatedData.length === 0) {
-            
-            const { data: existingData, error: fetchError } = await supabase
+        let shareToken = movie.share_data;
+        if (!shareToken) {
+            shareToken = crypto.randomBytes(8).toString('hex');
+            await supabase
                 .from('movies')
-                .select()
-                .eq('id', movieId)
-                .maybeSingle();
-
-            if (fetchError) {
-                return NextResponse.json({ error: fetchError.message }, { status: 500 });
-            }
-
-            if (!existingData) {
-                return NextResponse.json({ error: "Movie not found" }, { status: 404 });
-            }
-
-            return NextResponse.json({ 
-                message: "Data already exists, returned existing record", 
-                data: existingData 
-            }, { status: 200 });
+                .update({ share_data: shareToken })
+                .eq('id', movieId);
         }
 
         return NextResponse.json({ 
-            message: "Field updated successfully with random string", 
-            data: updatedData[0] 
+            status: "success",
+            share_data: shareToken,
+            data: { ...movie, share_data: shareToken }
         }, { status: 200 });
 
     } catch (err) {

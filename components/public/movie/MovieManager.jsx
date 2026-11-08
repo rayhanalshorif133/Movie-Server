@@ -17,21 +17,37 @@ function MovieManagerContent({ initialMovies }) {
     const searchParams = useSearchParams();
 
     useEffect(() => {
+        const idParam = searchParams.get('id');
         const shareToken = searchParams.get('s');
-        if (shareToken) {
-            const fetchSharedMovie = async () => {
-                try {
-                    const res = await axios.get(`/api/movies/share?s=${shareToken}`);
-                    if (res.data) {
-                        setSelectedMovie(res.data);
-                    }
-                } catch (err) {
-                    console.error("Failed to fetch shared movie:", err);
-                }
-            };
-            fetchSharedMovie();
+
+        if (!idParam && !shareToken) return;
+
+        // 1. Instant check in loaded movies list (0ms response)
+        if (idParam && Array.isArray(movies) && movies.length > 0) {
+            const found = movies.find(m => String(m.id) === String(idParam) || String(m._id) === String(idParam));
+            if (found) {
+                setSelectedMovie(found);
+                return;
+            }
         }
-    }, [searchParams]);
+
+        // 2. Fetch from server if not in current memory
+        const fetchSharedMovie = async () => {
+            try {
+                let query = '';
+                if (idParam) query = `id=${encodeURIComponent(idParam)}`;
+                else if (shareToken) query = `s=${encodeURIComponent(shareToken)}`;
+
+                const res = await axios.get(`/api/movies/share?${query}`);
+                if (res.data && !res.data.error) {
+                    setSelectedMovie(res.data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch shared movie:", err);
+            }
+        };
+        fetchSharedMovie();
+    }, [searchParams, movies]);
 
     useEffect(() => {
         axios.get('/api/hitlogs?pagename=movies').catch(() => {});

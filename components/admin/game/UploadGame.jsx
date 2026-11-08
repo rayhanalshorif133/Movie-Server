@@ -16,6 +16,8 @@ export default function UploadGame() {
   const [type, setTypes] = useState('');
   const [driveIds, setDriveIds] = useState([]);
   const [errorMsg, setErrorMsg] = useState();
+  const [fetchingDrive, setFetchingDrive] = useState(false);
+  const [gmailList, setGmailList] = useState([]);
 
   const API_URL = "/api/games/type";
 
@@ -31,6 +33,14 @@ export default function UploadGame() {
 
   useEffect(() => {
     fetchTypes();
+    axios.get('/api/gmails?page=0&limit=100')
+      .then(res => {
+        if (res.data?.data) {
+          const emails = res.data.data.map(g => g.name || g.email).filter(Boolean);
+          setGmailList([...new Set(emails)]);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const [formData, setFormData] = useState({
@@ -46,37 +56,91 @@ export default function UploadGame() {
     asset_gif_images: [],
   });
 
+  const processDriveUrl = async (rawUrl) => {
+    if (!rawUrl || typeof rawUrl !== 'string' || !rawUrl.trim()) return;
+    if (fetchingDrive) return;
+
+    setFetchingDrive(true);
+    setErrorMsg('');
+
+    try {
+      let data = null;
+      try {
+        data = await getMovieFileInfo(rawUrl.trim());
+      } catch (err) {
+        console.warn('Game drive info error:', err);
+      }
+
+      if (!data || !data.success) {
+        const res = await axios.get(`/api/movie-info?url=${encodeURIComponent(rawUrl.trim())}`);
+        data = res.data;
+      }
+
+      if (data && data.success) {
+        const { fileId, name, gmail, size } = data;
+        const finalId = fileId || rawUrl.trim();
+        const finalName = name || '';
+
+        axios.get(`/api/games/check-duplicate-entry?title=${encodeURIComponent(finalName)}&url=${encodeURIComponent(finalId)}`)
+          .then((response) => {
+            const checkData = response.data;
+            setErrorMsg(checkData.message);
+            if (checkData.status === 'success') {
+              setFormData(prev => ({
+                ...prev,
+                title: finalName || prev.title,
+                url: finalId,
+                gmail: gmail || prev.gmail,
+                size: size || prev.size
+              }));
+            }
+          })
+          .catch(() => {
+            setFormData(prev => ({
+              ...prev,
+              title: finalName || prev.title,
+              url: finalId,
+              gmail: gmail || prev.gmail,
+              size: size || prev.size
+            }));
+          });
+      } else {
+        setErrorMsg(data?.error || 'Failed to fetch details from Google Drive.');
+      }
+    } catch (err) {
+      console.error('Failed to read Drive file:', err);
+      setErrorMsg('Error communicating with Google Drive.');
+    } finally {
+      setFetchingDrive(false);
+    }
+  };
+
   const handlePaste = async () => {
     try {
       const URL = await navigator.clipboard.readText();
-      const data = await getMovieFileInfo(URL);
-      if (!data || !data.fileId) return;
-      const { fileId, name, gmail, size } = data;
-
-      axios.get(`/api/games/check-duplicate-entry?title=${name}&url=${fileId}`)
-        .then((response) => {
-          const data = response.data;
-          setErrorMsg(data.message);
-          if (data.status == 'success') {
-            setFormData(prev => ({
-              ...prev,
-              title: name,
-              url: fileId,
-              gmail: gmail,
-              size: size
-            }));
-          }
-
-
-        });
-
-
-
-
-
-
+      if (URL && URL.trim()) {
+        setFormData(prev => ({ ...prev, url: URL.trim() }));
+        await processDriveUrl(URL.trim());
+      }
     } catch (err) {
-      console.error('Failed to read clipboard contents: ', err);
+      console.warn('Failed to read clipboard contents:', err);
+    }
+  };
+
+  const handleInputPaste = (e) => {
+    const text = e.clipboardData?.getData('text') || '';
+    if (text && text.trim()) {
+      e.preventDefault();
+      setFormData(prev => ({ ...prev, url: text.trim() }));
+      processDriveUrl(text.trim());
+    }
+  };
+
+  const handleUrlChange = (e) => {
+    const val = e.target.value;
+    setFormData(prev => ({ ...prev, url: val }));
+    if (val.includes('drive.google.com/file/d/') || val.includes('drive.google.com/open?id=')) {
+      processDriveUrl(val.trim());
     }
   };
 
