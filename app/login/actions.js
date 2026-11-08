@@ -5,33 +5,53 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export async function login(formData) {
-  const supabase = await createClient()
+  let redirectUrl = null;
 
-  const email = formData.get('email')
-  const password = formData.get('password')
+  try {
+    const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
+    const email = formData.get('email')
+    const password = formData.get('password')
 
-  if (error) {
-    return redirect('/login?error=' + encodeURIComponent(error.message))
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      redirectUrl = '/login?error=' + encodeURIComponent(error.message);
+    } else {
+      const cookieStore = await cookies()
+      cookieStore.set('dummy_auth_token', 'mock_admin_token', {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+      })
+
+      redirectUrl = '/admin/dashboard';
+    }
+  } catch (err) {
+    if (err?.digest?.startsWith('NEXT_REDIRECT')) {
+      throw err;
+    }
+    console.error('Login action error:', err);
+    redirectUrl = '/login?error=' + encodeURIComponent(err.message || 'Login failed');
   }
 
-  const cookieStore = await cookies()
-  cookieStore.set('dummy_auth_token', 'mock_admin_token', {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'lax',
-  })
-
-  redirect('/admin/dashboard')
+  if (redirectUrl) {
+    redirect(redirectUrl);
+  }
 }
 
 export async function logout() {
-  const supabase = await createClient()
-  await supabase.auth.signOut()
+  try {
+    const supabase = await createClient()
+    if (supabase?.auth?.signOut) {
+      await supabase.auth.signOut()
+    }
+  } catch (err) {
+    console.error('Logout action error:', err);
+  }
 
   const cookieStore = await cookies()
   cookieStore.delete('dummy_auth_token')

@@ -6,7 +6,11 @@ export default async function LoginPage({ searchParams }) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-      <form className="flex flex-col w-full max-w-sm gap-4 p-8 bg-white border border-gray-200 rounded-xl shadow-lg">
+      <form 
+        action={login}
+        suppressHydrationWarning
+        className="flex flex-col w-full max-w-sm gap-4 p-8 bg-white border border-gray-200 rounded-xl shadow-lg"
+      >
         <h1 className="text-3xl font-bold text-center text-blue-600 mb-4">Login</h1>
         
         {errorMessage && (
@@ -18,6 +22,7 @@ export default async function LoginPage({ searchParams }) {
         <div className="flex flex-col gap-2">
           <label className="text-sm font-semibold">Email</label>
           <input
+            suppressHydrationWarning
             className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black"
             name="email"
             type="email"
@@ -30,6 +35,7 @@ export default async function LoginPage({ searchParams }) {
         <div className="flex flex-col gap-2">
           <label className="text-sm font-semibold">Password</label>
           <input
+            suppressHydrationWarning
             className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black"
             name="password"
             type="password"
@@ -40,7 +46,7 @@ export default async function LoginPage({ searchParams }) {
         </div>
 
         <button
-          formAction={login}
+          type="submit"
           className="p-3 mt-4 font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-200 cursor-pointer"
         >
           Sign In

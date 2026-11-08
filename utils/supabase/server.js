@@ -1,4 +1,4 @@
-import { dbStore } from '@/utils/dummyData';
+import { dbStore, dummyAuth } from '@/utils/dummyData';
 
 const cache = {
   data: {},
@@ -299,6 +299,23 @@ class MockQueryBuilder {
 
 export async function createClient() {
   return {
-    from: (tableName) => new MockQueryBuilder(tableName)
+    from: (tableName) => new MockQueryBuilder(tableName),
+    auth: {
+      signInWithPassword: async ({ email, password }) => {
+        const user = dummyAuth?.find(
+          (u) => u.email?.toLowerCase() === email?.toLowerCase() && u.password === password
+        );
+        if (user || (email === 'rayhan@gmail.com' && password === 'admin123')) {
+          return { data: { user: user || { email, role: 'Super Admin' } }, error: null };
+        }
+        return { data: { user: null }, error: { message: 'Invalid email or password' } };
+      },
+      signOut: async () => {
+        return { error: null };
+      },
+      getUser: async () => {
+        return { data: { user: { email: 'rayhan@gmail.com', role: 'Super Admin' } }, error: null };
+      }
+    }
   };
 }
