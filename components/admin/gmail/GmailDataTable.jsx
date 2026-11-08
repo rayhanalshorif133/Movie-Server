@@ -18,6 +18,7 @@ import axios from "axios";
 import Badge from "@/components/common/Badge";
 import LastLoginTime from "./_partials/LastLoginTime";
 import GmailOrderByToggle from "./_partials/GmailOrderByToggle";
+import AutoSyncProgressModal from "./AutoSyncProgressModal";
 import Swal from "sweetalert2";
 import { RxCross2 } from "react-icons/rx";
 import { IoReload } from "react-icons/io5";
@@ -34,6 +35,17 @@ export default function GmailDataTable({ initialEmails = [] }) {
   const [openRows, setOpenRows] = useState(new Set());
   const [copiedId, setCopiedId] = useState(null);
   const [isPending, startTransition] = useTransition();
+
+  // Progress Countdown Modal State
+  const [syncModalOpen, setSyncModalOpen] = useState(false);
+  const [syncStatus, setSyncStatus] = useState("syncing");
+  const [syncError, setSyncError] = useState("");
+
+  // Dynamically estimate processing duration based on account count
+  const estimatedSyncSeconds = useMemo(() => {
+    const count = emails.length || 8;
+    return Math.max(10, Math.min(22, Math.round(count * 0.7 + 6)));
+  }, [emails.length]);
 
   // Fetch / refresh data from API
   const getData = async () => {
@@ -55,27 +67,36 @@ export default function GmailDataTable({ initialEmails = [] }) {
     }
   };
 
-  // Auto Gmail Update action
+  // Auto Gmail Update action with live countdown & progress tracker
   const autoGmailUpdateBtn = async () => {
+    setSyncStatus("syncing");
+    setSyncError("");
+    setSyncModalOpen(true);
     setAutoUpdating(true);
+
     try {
       await axios.get("/api/gmails/autoupdate");
       await getData();
-      Swal.fire({
-        title: "Updated!",
-        text: "Gmail storage data and movie allocations successfully synchronized.",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-      });
+      setSyncStatus("success");
+
+      // Give user time to see 100% finished state
+      setTimeout(() => {
+        setSyncModalOpen(false);
+        setAutoUpdating(false);
+        Swal.fire({
+          title: "Updated!",
+          text: "Gmail storage data and movie allocations successfully synchronized.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }, 900);
     } catch (error) {
       console.error("Network error:", error);
-      Swal.fire({
-        title: "Error!",
-        text: "Failed to auto-update Gmail storage.",
-        icon: "error",
-      });
-    } finally {
+      setSyncStatus("error");
+      setSyncError(
+        error.response?.data?.error || error.message || "Failed to auto-update Gmail storage."
+      );
       setAutoUpdating(false);
     }
   };
@@ -624,6 +645,15 @@ export default function GmailDataTable({ initialEmails = [] }) {
           </div>
         </div>
       )}
+
+      {/* Auto Sync Countdown & Progress Tracker Modal */}
+      <AutoSyncProgressModal
+        isOpen={syncModalOpen}
+        status={syncStatus}
+        errorMessage={syncError}
+        estimatedSeconds={estimatedSyncSeconds}
+        onClose={() => setSyncModalOpen(false)}
+      />
     </div>
   );
 }

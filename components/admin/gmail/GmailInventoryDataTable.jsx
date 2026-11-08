@@ -19,6 +19,7 @@ import axios from "axios";
 import Badge from "@/components/common/Badge";
 import LastLoginTime from "./_partials/LastLoginTime";
 import GmailOrderByToggle from "./_partials/GmailOrderByToggle";
+import AutoSyncProgressModal from "./AutoSyncProgressModal";
 import Swal from "sweetalert2";
 import { RxCross2 } from "react-icons/rx";
 import { IoReload } from "react-icons/io5";
@@ -37,6 +38,17 @@ export default function GmailInventoryDataTable({ initialInventory = [] }) {
   const [newGmail, setNewGmail] = useState("");
   const [addingGmail, setAddingGmail] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  // Progress Countdown Modal State
+  const [syncModalOpen, setSyncModalOpen] = useState(false);
+  const [syncStatus, setSyncStatus] = useState("syncing");
+  const [syncError, setSyncError] = useState("");
+
+  // Dynamically estimate processing duration
+  const estimatedSyncSeconds = useMemo(() => {
+    const count = inventory.length || 8;
+    return Math.max(10, Math.min(20, Math.round(count * 0.7 + 6)));
+  }, [inventory.length]);
 
   // Fetch / refresh inventory from API
   const getData = async () => {
@@ -58,27 +70,35 @@ export default function GmailInventoryDataTable({ initialInventory = [] }) {
     }
   };
 
-  // Auto Gmail Update action
+  // Auto Gmail Update action with live countdown & progress tracker
   const autoGmailUpdateBtn = async () => {
+    setSyncStatus("syncing");
+    setSyncError("");
+    setSyncModalOpen(true);
     setAutoUpdating(true);
+
     try {
       await axios.get("/api/gmails/autoupdate");
       await getData();
-      Swal.fire({
-        title: "Synchronized!",
-        text: "Inventory and storage allocation nodes have been updated.",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-      });
+      setSyncStatus("success");
+
+      setTimeout(() => {
+        setSyncModalOpen(false);
+        setAutoUpdating(false);
+        Swal.fire({
+          title: "Synchronized!",
+          text: "Inventory and storage allocation nodes have been updated.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }, 900);
     } catch (error) {
       console.error("Network error:", error);
-      Swal.fire({
-        title: "Error!",
-        text: "Failed to auto-update Gmail inventory.",
-        icon: "error",
-      });
-    } finally {
+      setSyncStatus("error");
+      setSyncError(
+        error.response?.data?.error || error.message || "Failed to auto-update Gmail inventory."
+      );
       setAutoUpdating(false);
     }
   };
@@ -620,6 +640,15 @@ export default function GmailInventoryDataTable({ initialInventory = [] }) {
           </div>
         </div>
       )}
+
+      {/* Auto Sync Countdown & Progress Tracker Modal */}
+      <AutoSyncProgressModal
+        isOpen={syncModalOpen}
+        status={syncStatus}
+        errorMessage={syncError}
+        estimatedSeconds={estimatedSyncSeconds}
+        onClose={() => setSyncModalOpen(false)}
+      />
     </div>
   );
 }
