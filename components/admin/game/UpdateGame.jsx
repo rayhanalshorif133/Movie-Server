@@ -95,7 +95,7 @@ export default function UpdateGame({ game }) {
     try {
       const URL = await navigator.clipboard.readText();
       const data = await getMovieFileInfo(URL);
-
+      if (!data || !data.fileId) return;
       const { fileId, name, gmail, size } = data;
 
       axios.get(`/api/games/check-duplicate-entry?title=${name}&url=${fileId}`)
