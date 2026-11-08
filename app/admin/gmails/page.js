@@ -2,7 +2,7 @@ import React from 'react';
 import Header from '@/components/admin/Header';
 import { createClient } from '@/utils/supabase/server';
 import StatCard from '@/components/admin/StatCard';
-import GmailList from '@/components/admin/gmail/GmailList';
+import GmailDataTable from '@/components/admin/gmail/GmailDataTable';
 import { FcGoogle, FcDatabase, FcCheckmark } from 'react-icons/fc';
 
 export const dynamic = 'force-dynamic';
@@ -16,15 +16,17 @@ export async function generateMetadata() {
 export default async function AdminGmailsPage() {
   const supabase = await createClient();
 
-  // Fetch all counts in parallel for optimal performance
+  // Fetch all counts and initial gmails in parallel
   const [
     { count: totalGmail },
     { count: usedGmailCount },
-    { count: unUsedGmailCount }
+    { count: unUsedGmailCount },
+    { data: gmails }
   ] = await Promise.all([
     supabase.from('gmail_inventory').select('*', { count: 'exact', head: true }),
     supabase.from('gmails').select('*', { count: 'exact', head: true }),
-    supabase.from('gmail_inventory').select('*', { count: 'exact', head: true }).eq('is_used', false)
+    supabase.from('gmail_inventory').select('*', { count: 'exact', head: true }).eq('is_used', false),
+    supabase.from('gmails').select('*').order('created_at', { ascending: false })
   ]);
 
   const statsConfig = [
@@ -61,22 +63,22 @@ export default async function AdminGmailsPage() {
     <>
       <Header title="Gmail Accounts Management" />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-          {statsConfig.map((stat) => (
-            <StatCard 
-              key={stat.label}
-              label={stat.label}
-              smallText={stat.smallText}
-              text={stat.count}
-              accentClass={stat.accentClass}
-              textClass={stat.textClass}
-              iconBg={stat.iconBg}
-              icon={stat.icon}
-            />
-          ))}
-        </div>
-        
-        <GmailList />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+        {statsConfig.map((stat) => (
+          <StatCard 
+            key={stat.label}
+            label={stat.label}
+            smallText={stat.smallText}
+            text={stat.count}
+            accentClass={stat.accentClass}
+            textClass={stat.textClass}
+            iconBg={stat.iconBg}
+            icon={stat.icon}
+          />
+        ))}
+      </div>
+      
+      <GmailDataTable initialEmails={gmails || []} />
     </>
   );
 }
