@@ -1,29 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+
+const colors = [
+    "from-teal-600 to-green-600",
+    "from-purple-600 to-blue-600",
+    "from-orange-500 to-red-600",
+    "from-pink-500 to-rose-600",
+    "from-indigo-600 to-violet-700"
+];
+
+function getColor(name) {
+    if (!name) return colors[0];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+}
 
 export default function DBBadge({ sourceGmailName, movieSize }) {
-
-    const [color, setColor] = useState(null);
-
-    const colors = [
-        "from-teal-600 to-green-600",
-        "from-purple-600 to-blue-600",
-        "from-orange-500 to-red-600",
-        "from-pink-500 to-rose-600",
-        "from-indigo-600 to-violet-700"
-    ];
-
-
-    useEffect(() => {
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        setColor(randomColor);
-    }, []);
+    const color = getColor(sourceGmailName);
 
     return (
         <div className="flex justify-left items-left">
             <div className="relative inline-flex items-center bg-white border border-gray-200 shadow-sm pl-4 pr-10 py-3 rounded-2xl group hover:shadow-md transition-all duration-300">
-
-
-
                 <div className={`absolute -top-3 -right-2 bg-linear-to-r ${color} text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg border-2 border-white`}>
                     {movieSize} MB
                 </div>
@@ -38,7 +37,6 @@ export default function DBBadge({ sourceGmailName, movieSize }) {
                     <span className="text-gray-800 font-bold text-sm lowercase">
                         {sourceGmailName}
                     </span>
-
                 </div>
             </div>
         </div>

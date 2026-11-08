@@ -1,7 +1,7 @@
 import Badge from '@/components/common/Badge';
 import DBBadge from '@/components/admin/movie/badge/DBBadge';
-import React from 'react';
-import { HiOutlinePencilAlt, HiOutlineTrash } from 'react-icons/hi';
+import React, { useState } from 'react';
+import { HiOutlinePencilAlt, HiOutlineTrash, HiOutlineClipboardCopy, HiOutlineCheck } from 'react-icons/hi';
 import TypeBadge from './badge/TypeBadge';
 import UploadDateBadge from './badge/UploadDateBadge';
 import Link from 'next/link';
@@ -9,7 +9,8 @@ import VisualBadge from '@/components/common/VisualBadge';
 import Swal from 'sweetalert2'
 import { deleteFileFromGoogleDrive, getGoogleDriveFileUrl, getGoogleDriveImageUrl } from '@/utils/google/manage';
 
-export default function MovieRow({ movie }) {
+export default function MovieRow({ movie, onDelete }) {
+    const [copied, setCopied] = useState(false);
 
     const formatDate = (dateString) => {
         if (!dateString) return 'Recent';
@@ -23,15 +24,17 @@ export default function MovieRow({ movie }) {
     const handleDeleteMovieBtn = (movieId) => {
         Swal.fire({
             title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            text: `Are you sure you want to delete "${movie.title || 'this movie'}"?`,
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
+            confirmButtonColor: "#2563eb",
+            cancelButtonColor: "#ef4444",
             confirmButtonText: "Yes, delete it!"
         }).then((result) => {
             if (result.isConfirmed) {
-                deleteFileFromGoogleDrive(movie.poster);
+                if (movie.poster) {
+                    deleteFileFromGoogleDrive(movie.poster);
+                }
                 fetch(`/api/movies?id=${movieId}`, {
                     method: 'DELETE',
                 })
@@ -48,10 +51,15 @@ export default function MovieRow({ movie }) {
                             Swal.fire({
                                 title: "Deleted!",
                                 text: "The movie has been deleted.",
-                                icon: "success"
-                            }).then(() => {
-                                window.location.reload();
+                                icon: "success",
+                                timer: 1200,
+                                showConfirmButton: false
                             });
+                            if (onDelete) {
+                                onDelete(movieId);
+                            } else {
+                                window.location.reload();
+                            }
                         }
                     })
                     .catch(error => {
@@ -64,12 +72,20 @@ export default function MovieRow({ movie }) {
                     });
             }
         });
-    }
+    };
 
     const driveUrl = getGoogleDriveFileUrl(movie.url || movie.file_id) || '#';
 
+    const handleCopyLink = () => {
+        if (driveUrl && driveUrl !== '#') {
+            navigator.clipboard.writeText(driveUrl);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
     return (
-        <tr className="group border-b border-gray-100 hover:bg-blue-50/30 transition-all duration-200">
+        <tr className="group border-b border-gray-100 hover:bg-blue-50/40 transition-all duration-200">
             <td className="px-6 py-4">
                 <div className="flex items-center gap-4">
                     <Link
@@ -77,12 +93,13 @@ export default function MovieRow({ movie }) {
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Open poster in Google Drive"
-                        className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-100 shadow-sm group-hover:shadow-md transition-shadow block cursor-pointer"
+                        className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-100 shadow-sm group-hover:shadow-md transition-shadow block cursor-pointer bg-gray-100"
                     >
                         <img
                             src={getGoogleDriveImageUrl(movie.poster)}
                             alt={movie.title || 'Movie'}
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            loading="lazy"
                         />
                         <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
                     </Link>
@@ -91,9 +108,9 @@ export default function MovieRow({ movie }) {
             <td className="px-6 py-4">
                 <div className="flex flex-col gap-1.5">
                     <span className="font-bold text-gray-800 text-base leading-tight group-hover:text-blue-600 transition-colors">
-                        {movie.title}  <TypeBadge type={movie.type} />
+                        {movie.title} <TypeBadge type={movie.type} />
                     </span>
-                    <div className='flex space-x-2'>
+                    <div className='flex items-center space-x-2'>
                         <Badge title={movie.part_name || 'Full Movie'} />
                         <Link
                             href={driveUrl}
@@ -102,6 +119,19 @@ export default function MovieRow({ movie }) {
                         >
                             <VisualBadge title={'View'} />
                         </Link>
+                        {driveUrl !== '#' && (
+                            <button
+                                onClick={handleCopyLink}
+                                title={copied ? "Copied Drive link!" : "Copy Drive link"}
+                                className="p-1 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer"
+                            >
+                                {copied ? (
+                                    <HiOutlineCheck className="text-emerald-600 text-xs" />
+                                ) : (
+                                    <HiOutlineClipboardCopy className="text-xs" />
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
             </td>
@@ -124,8 +154,9 @@ export default function MovieRow({ movie }) {
             </td>
 
             <td className="px-6 py-4 text-right">
-                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                    <Link href={`/admin/movies/manage?id=${movie.id}`}
+                <div className="flex justify-end gap-1.5 opacity-90 sm:opacity-0 group-hover:opacity-100 transition-all transform sm:translate-x-2 group-hover:translate-x-0">
+                    <Link 
+                        href={`/admin/movies/manage?id=${movie.id}`}
                         title="Edit Movie"
                         className="p-2 hover:bg-blue-100 text-blue-600 rounded-full transition-all active:scale-90"
                     >
@@ -134,7 +165,7 @@ export default function MovieRow({ movie }) {
                     <button
                         onClick={() => handleDeleteMovieBtn(movie.id)}
                         title="Delete Movie"
-                        className="p-2 hover:bg-red-100 text-red-500 rounded-full transition-all active:scale-90"
+                        className="p-2 hover:bg-red-100 text-red-500 rounded-full transition-all active:scale-90 cursor-pointer"
                     >
                         <HiOutlineTrash size={20} />
                     </button>
