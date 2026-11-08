@@ -88,6 +88,7 @@ class MockQueryBuilder {
     this.rangeFrom = null;
     this.rangeTo = null;
     this.pendingInsert = null;
+    this.pendingUpsert = null;
     this.pendingUpdate = null;
     this.pendingDelete = false;
   }
@@ -141,8 +142,19 @@ class MockQueryBuilder {
     return this;
   }
 
+  limit(count) {
+    this.rangeFrom = 0;
+    this.rangeTo = Math.max(0, count - 1);
+    return this;
+  }
+
   insert(rows) {
     this.pendingInsert = rows;
+    return this;
+  }
+
+  upsert(rows, options = {}) {
+    this.pendingUpsert = { rows, options };
     return this;
   }
 
@@ -159,7 +171,7 @@ class MockQueryBuilder {
   async then(resolve, reject) {
     try {
       // Invalidate cache for mutations to ensure fresh live data
-      if (this.pendingDelete || this.pendingUpdate || this.pendingInsert) {
+      if (this.pendingDelete || this.pendingUpdate || this.pendingInsert || this.pendingUpsert) {
         cache.data[this.table] = null;
         cache.timestamp[this.table] = 0;
       }
@@ -186,6 +198,54 @@ class MockQueryBuilder {
           insertPromises.push(mutateSheet(this.table, 'add', { data: item }));
         }
         await Promise.all(insertPromises);
+      }
+
+      // 2.1 Handle Upsert Mutation (Awaited for serverless environments)
+      if (this.pendingUpsert) {
+        const rows = Array.isArray(this.pendingUpsert.rows)
+          ? this.pendingUpsert.rows
+          : [this.pendingUpsert.rows];
+        const onConflict = this.pendingUpsert.options?.onConflict || 'name';
+        const upsertPromises = [];
+        const resultRows = [];
+
+        for (const row of rows) {
+          const conflictVal = row[onConflict] !== undefined ? row[onConflict] : row.id;
+          const existingIndex = data.findIndex(item => {
+            if (conflictVal === undefined || conflictVal === null) return false;
+            return String(item[onConflict] || item.id || '').toLowerCase().trim() ===
+                   String(conflictVal).toLowerCase().trim();
+          });
+
+          if (existingIndex >= 0) {
+            const existingId = data[existingIndex].id;
+            const updated = { ...data[existingIndex], ...row };
+            data[existingIndex] = updated;
+            resultRows.push(updated);
+            if (dbStore[this.table]) {
+              dbStore[this.table] = dbStore[this.table].map(item =>
+                String(item.id) === String(existingId) ? updated : item
+              );
+            }
+            upsertPromises.push(mutateSheet(this.table, 'update', { id: existingId, data: row }));
+          } else {
+            const newItem = {
+              id: row.id || String(Date.now()),
+              created_at: row.created_at || new Date().toISOString(),
+              ...row
+            };
+            data.push(newItem);
+            resultRows.push(newItem);
+            if (dbStore[this.table]) dbStore[this.table].push(newItem);
+            upsertPromises.push(mutateSheet(this.table, 'add', { data: newItem }));
+          }
+        }
+        await Promise.all(upsertPromises);
+
+        if (this.isSingle) {
+          return resolve({ data: resultRows[0] || null, error: null });
+        }
+        return resolve({ data: resultRows, error: null });
       }
 
       // 3. Apply Filters

@@ -249,38 +249,82 @@ export default function UploadGame() {
         Upload New Game Assets
       </h3>
 
+      {/* Datalist for registered Gmail accounts */}
+      <datalist id="game-uploader-emails">
+        {gmailList.map((email, idx) => (
+          <option key={idx} value={email} />
+        ))}
+      </datalist>
+
       <form onSubmit={handleUpload} className="space-y-6">
 
-
         {/* Google Drive URL */}
-
         <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-semibold text-gray-700 flex items-center">
+              Asset File URL (G-Drive)
+              {formData.url && (
+                <button
+                  type="button"
+                  onClick={clearURL}
+                  className="h-5 w-5 mx-2 cursor-pointer hover:scale-105 rounded-full bg-gray-300 hover:bg-red-500 hover:text-white flex items-center justify-center transition"
+                >
+                  <MdClear size={14} />
+                </button>
+              )}
+            </label>
+            {fetchingDrive && (
+              <span className="text-xs font-medium text-blue-600 flex items-center gap-1.5 animate-pulse">
+                <FiLoader className="animate-spin" size={13} />
+                Fetching Drive asset details...
+              </span>
+            )}
+          </div>
 
-          <label className="text-sm font-semibold text-gray-700 mb-2 flex">
-            Asset File URL (G-Drive)
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Click to auto-paste or paste Google Drive URL"
+                className="w-full p-3 pr-10 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none transition bg-white"
+                value={formData.url}
+                onClick={() => {
+                  if (!formData.url) handlePaste();
+                }}
+                onPaste={handleInputPaste}
+                onChange={handleUrlChange}
+                disabled={fetchingDrive}
+              />
+              {fetchingDrive && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <FiLoader className="animate-spin text-blue-500" size={18} />
+                </div>
+              )}
+            </div>
 
             <button
               type="button"
-              onClick={clearURL}
-              className="h-5 w-5 mx-2 cursor-pointer hover:scale-105 rounded-full bg-gray-300 hover:bg-red-500 hover:text-white flex items-center justify-center"
+              onClick={handlePaste}
+              disabled={fetchingDrive}
+              className="px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-semibold rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-sm whitespace-nowrap cursor-pointer"
             >
-              <MdClear size={14} />
+              {fetchingDrive ? (
+                <>
+                  <FiLoader className="animate-spin" size={16} />
+                  <span>Searching...</span>
+                </>
+              ) : (
+                <>
+                  <FiClipboard size={16} />
+                  <span>Paste & Auto-Fill</span>
+                </>
+              )}
             </button>
-
-          </label>
-
-          <input
-            type="text"
-            placeholder="Paste Google Drive URL to Auto-Fill"
-            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-            value={formData.url}
-            onClick={handlePaste}
-            onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-          />
-          <div className="mt-4">
-            {errorMsg && <GameUploadErrorMessage errorMsg={errorMsg} />}
           </div>
 
+          <div className="mt-3">
+            {errorMsg && <GameUploadErrorMessage errorMsg={errorMsg} />}
+          </div>
         </div>
 
 
@@ -299,7 +343,7 @@ export default function UploadGame() {
               <input
                 required
                 type="text"
-                className="w-full p-3 border border-gray-200 rounded-lg"
+                className="w-full p-3 border border-gray-200 rounded-lg bg-white"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
@@ -316,7 +360,7 @@ export default function UploadGame() {
               <input
                 type="number"
                 step="0.01"
-                className="w-full p-3 border border-gray-200 rounded-lg"
+                className="w-full p-3 border border-gray-200 rounded-lg bg-white"
                 value={formData.size}
                 onChange={(e) => setFormData({ ...formData, size: e.target.value })}
               />
@@ -332,7 +376,8 @@ export default function UploadGame() {
 
               <input
                 type="text"
-                className="w-full p-3 border border-gray-200 rounded-lg"
+                list="game-uploader-emails"
+                className="w-full p-3 border border-gray-200 rounded-lg bg-white"
                 value={formData.gmail}
                 onChange={(e) => setFormData({ ...formData, gmail: e.target.value })}
               />
