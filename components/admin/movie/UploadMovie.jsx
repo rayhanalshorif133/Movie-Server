@@ -440,7 +440,7 @@ export default function UploadMovie() {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Movie Poster
             </label>
-            <ImageUploader className="w-full" setDriveId={setDriveId} />
+            <ImageUploader className="w-full" setDriveId={setDriveId} initialDriveId={formData.poster} />
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Subtitle URL</label>
@@ -454,16 +454,17 @@ export default function UploadMovie() {
           </div>
         </div>
 
-        <div className={`w-full h-10 flex items-center justify-center bg-amber-500 rounded-lg ${!formData.poster ? 'block' : 'hidden'}`}>
-          <p className="text-center text-xs text-white">Make sure to upload the movie poster to Google Drive</p>
+        <div className={`w-full h-10 flex items-center justify-center bg-amber-500 rounded-lg transition-all ${!formData.poster ? 'flex' : 'hidden'}`}>
+          <p className="text-center text-xs text-white font-medium">Make sure to upload the movie poster to Google Drive</p>
         </div>
 
         <button
-          disabled={loading}
-          className={`w-full cursor-pointer ${formData.poster ? 'block' : 'hidden'} py-4 rounded-lg font-bold text-white transition ${loading ? 'bg-gray-400' : 'bg-yellow-500 hover:bg-yellow-600 shadow-lg shadow-yellow-100'
+          type="submit"
+          disabled={loading || !formData.poster}
+          className={`w-full cursor-pointer ${formData.poster ? 'block' : 'hidden'} py-4 rounded-lg font-bold text-white transition ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600 shadow-lg shadow-yellow-100'
             }`}
         >
-          {loading ? 'Uploading Assets...' : 'Publish Movie'}
+          {loading ? 'Uploading Movie & Updating Sheet...' : 'Publish Movie'}
         </button>
 
       </form>

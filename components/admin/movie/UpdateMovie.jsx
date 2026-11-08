@@ -474,7 +474,7 @@ export default function UpdateMovie({ movie }) {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Movie Poster
             </label>
-            <ImageUploader className="w-full" setDriveId={setDriveId} />
+            <ImageUploader className="w-full" setDriveId={setDriveId} initialDriveId={formData.poster || movie?.poster} />
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Subtitle URL</label>

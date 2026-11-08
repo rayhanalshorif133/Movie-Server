@@ -4,6 +4,7 @@ import MultiImageUploader from '@/components/common/MultiImageUploader';
 import { getMovieFileInfo } from '@/utils/google/movie-info';
 import React, { useEffect, useState } from 'react'
 import { MdClear } from "react-icons/md";
+import { FiClipboard, FiLoader, FiCheck } from "react-icons/fi";
 import axios from "axios";
 import Swal from 'sweetalert2';
 import GameUploadErrorMessage from './_partials/GameUploadErrorMessage';

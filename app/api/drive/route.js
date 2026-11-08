@@ -22,9 +22,9 @@ export async function POST(request) {
     });
 
     const text = await response.text();
+    let json = null;
     try {
-      const json = JSON.parse(text);
-      return NextResponse.json(json, { status: response.status });
+      json = JSON.parse(text);
     } catch (parseErr) {
       if (response.status === 403) {
         return NextResponse.json({
@@ -43,6 +43,38 @@ export async function POST(request) {
         error: `Invalid response from Google Drive script (${response.status}): ${text.slice(0, 150)}`
       }, { status: 502 });
     }
+
+    // Auto-recovery for Drive image uploads:
+    // When Google Apps Script creates the file in the folder but throws on setSharing
+    // (e.g. "Exception: অ্যাক্সেস অস্বীকৃত: DriveApp"), verify the file was actually created
+    // in the target folder and return the created file's ID so uploads succeed reliably.
+    const isUploadAction = (!payload.action || payload.action === 'upload') && payload.base64;
+    const hasErrorOrMissingId = !json || json.status === 'error' || (!json.id && !json.fileId);
+
+    if (isUploadAction && hasErrorOrMissingId && payload.fileName) {
+      try {
+        const listRes = await fetch(`${apiUrl}?action=list&limit=10`, { cache: 'no-store' });
+        const listJson = await listRes.json();
+        if (listJson && Array.isArray(listJson.files)) {
+          const matching = listJson.files.find(f => f.name === payload.fileName);
+          if (matching && matching.id) {
+            return NextResponse.json({
+              status: "success",
+              id: matching.id,
+              fileId: matching.id,
+              name: matching.name,
+              size: matching.size,
+              url: matching.downloadUrl || `https://drive.google.com/uc?id=${matching.id}`,
+              directUrl: matching.directUrl || `https://lh3.googleusercontent.com/d/${matching.id}`
+            }, { status: 200 });
+          }
+        }
+      } catch (recoveryErr) {
+        console.warn("Drive upload auto-recovery warning:", recoveryErr.message);
+      }
+    }
+
+    return NextResponse.json(json, { status: response.status });
   } catch (error) {
     console.error("Drive Proxy Error:", error);
     return NextResponse.json({ status: "error", error: error.message }, { status: 500 });
@@ -67,4 +99,3 @@ export async function GET(request) {
     return NextResponse.json({ status: "error", error: error.message }, { status: 500 });
   }
 }
-
