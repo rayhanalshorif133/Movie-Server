@@ -100,6 +100,16 @@ function MovieManagerContent({ initialMovies }) {
         return acc;
     }, {});
 
+    // Sort movies inside each category by created_at descending (latest uploaded movie 1st)
+    Object.keys(groupedMovies).forEach((type) => {
+        groupedMovies[type].sort((a, b) => {
+            const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+            const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+            if (timeB !== timeA) return timeB - timeA;
+            return (Number(b.id) || 0) - (Number(a.id) || 0);
+        });
+    });
+
     return (
         <>
             <MovieFilter 
