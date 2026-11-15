@@ -86,19 +86,11 @@ function MovieManagerContent({ initialMovies }) {
     // Grouping & Filtering Logic
     const safeMovies = Array.isArray(movies) ? movies : [];
 
-    // Filter latest movies uploaded within the last 10 days from current date (regardless of category)
-    const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
-    const latestMovies = safeMovies
-        .filter((movie) => {
-            if (!movie.created_at) return false;
-            const uploadTime = new Date(movie.created_at).getTime();
-            if (isNaN(uploadTime)) return false;
-            const now = Date.now();
-            const diff = now - uploadTime;
-            // Uploaded within the last 10 days (diff >= 0, with 1-hour buffer for clock/timezone drift)
-            return diff >= -3600000 && diff <= TEN_DAYS_MS;
-        })
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    // Latest 5 movies uploaded across all categories
+    const latestMovies = [...safeMovies]
+        .filter((movie) => movie && movie.created_at)
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 5);
 
     // Grouping by category
     const groupedMovies = safeMovies.reduce((acc, movie) => {

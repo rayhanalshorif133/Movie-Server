@@ -5,7 +5,7 @@ import { FaPlay } from "react-icons/fa";
 import { MdHd, MdSubtitles } from "react-icons/md";
 import { HiCalendar, HiOutlineFolder, HiSparkles } from "react-icons/hi2";
 
-export default function MovieCard({ movie }) {
+export default function MovieCard({ movie, isLatestCard = false }) {
   if (!movie) return null;
 
   // Extract year from title like (2019) or fallback to created_at
@@ -44,14 +44,8 @@ export default function MovieCard({ movie }) {
   // Subtitle check
   const hasSubtitle = Boolean(movie.subtitle_url && movie.subtitle_url.trim() && movie.subtitle_url !== 'null');
 
-  // Check if uploaded within the last 10 days
-  const isRecent = React.useMemo(() => {
-    if (!movie.created_at) return false;
-    const uploadTime = new Date(movie.created_at).getTime();
-    if (isNaN(uploadTime)) return false;
-    const diff = Date.now() - uploadTime;
-    return diff >= -3600000 && diff <= 10 * 24 * 60 * 60 * 1000;
-  }, [movie.created_at]);
+  // Show NEW badge for latest cards
+  const isRecent = Boolean(isLatestCard);
 
   return (
     <div className="group relative w-full h-full rounded-2xl overflow-hidden bg-slate-900/90 border border-slate-800/80 hover:border-pink-500/50 shadow-lg hover:shadow-2xl hover:shadow-pink-500/20 transition-all duration-300 hover:-translate-y-1.5 flex flex-col cursor-pointer">
@@ -75,7 +69,7 @@ export default function MovieCard({ movie }) {
               <span>1080p</span>
             </span>
 
-            {/* NEW Badge (Uploaded within last 10 days) */}
+            {/* NEW Badge (for latest movies) */}
             {isRecent && (
               <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-gradient-to-r from-amber-500 to-rose-600 text-white text-[10px] font-black uppercase tracking-wider shadow-sm border border-amber-300/40">
                 <HiSparkles className="text-[10px] animate-pulse" />

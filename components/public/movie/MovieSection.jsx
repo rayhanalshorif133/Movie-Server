@@ -53,7 +53,7 @@ export default function MovieSection({ type, title, isLatest = false, items = []
             {isLatest && (
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center gap-1 shadow-sm">
                 <RiFireLine className="text-amber-400 animate-pulse text-xs" />
-                <span>Last 10 Days</span>
+                <span>Latest 5</span>
               </span>
             )}
           </h2>
@@ -75,7 +75,7 @@ export default function MovieSection({ type, title, isLatest = false, items = []
         {displayedItems.map((movie) => (
           <Suspense key={movie.id || movie._id} fallback={<LoadingCard />}>
             <div onClick={() => onMovieSelect(movie)} className="cursor-pointer w-full h-full flex flex-col">
-              <MovieCard movie={movie} />
+              <MovieCard movie={movie} isLatestCard={isLatest} />
             </div>
           </Suspense>
         ))}
