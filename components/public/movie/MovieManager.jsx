@@ -83,8 +83,24 @@ function MovieManagerContent({ initialMovies }) {
         };
     }, [searchTitle, searchType]);
 
-    // Grouping Logic
+    // Grouping & Filtering Logic
     const safeMovies = Array.isArray(movies) ? movies : [];
+
+    // Filter latest movies uploaded within the last 10 days from current date (regardless of category)
+    const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+    const latestMovies = safeMovies
+        .filter((movie) => {
+            if (!movie.created_at) return false;
+            const uploadTime = new Date(movie.created_at).getTime();
+            if (isNaN(uploadTime)) return false;
+            const now = Date.now();
+            const diff = now - uploadTime;
+            // Uploaded within the last 10 days (diff >= 0, with 1-hour buffer for clock/timezone drift)
+            return diff >= -3600000 && diff <= TEN_DAYS_MS;
+        })
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    // Grouping by category
     const groupedMovies = safeMovies.reduce((acc, movie) => {
         const type = movie.type || 'Other';
         if (!acc[type]) acc[type] = [];
@@ -103,16 +119,37 @@ function MovieManagerContent({ initialMovies }) {
                 allCount={Array.isArray(initialMovies) ? initialMovies.length : 0}
             />
             <div className="space-y-12">
-                {loading ? <ScouringMovies /> : Object.keys(groupedMovies || {}).length > 0 ? (
-                    Object.entries(groupedMovies).map(([type, items]) => (
-                        <MovieSection 
-                            key={type} 
-                            type={type} 
-                            items={items} 
-                            onMovieSelect={setSelectedMovie} 
-                        />
-                    ))
-                ) : <NoMovieFound />}
+                {loading ? (
+                    <ScouringMovies />
+                ) : (
+                    <>
+                        {/* Latest Movies Section */}
+                        {latestMovies.length > 0 && (
+                            <MovieSection 
+                                key="latest-movies" 
+                                type="latest" 
+                                title="Latest Movies"
+                                isLatest={true}
+                                items={latestMovies} 
+                                onMovieSelect={setSelectedMovie} 
+                            />
+                        )}
+
+                        {/* Category-based Movie Sections */}
+                        {Object.keys(groupedMovies || {}).length > 0 ? (
+                            Object.entries(groupedMovies).map(([type, items]) => (
+                                <MovieSection 
+                                    key={type} 
+                                    type={type} 
+                                    items={items} 
+                                    onMovieSelect={setSelectedMovie} 
+                                />
+                            ))
+                        ) : (
+                            latestMovies.length === 0 && <NoMovieFound />
+                        )}
+                    </>
+                )}
             </div>
 
             {selectedMovie && (
