@@ -5,6 +5,7 @@ import xml.sax.saxutils as saxutils
 
 data_files = [
     ("movies", "data/movies_rows.csv"),
+    ("movie_type", "data/movie_type_rows.csv"),
     ("games", "data/games_rows.csv"),
     ("game_type", "data/game_type_rows.csv"),
     ("gmails", "data/gmails_rows.csv"),

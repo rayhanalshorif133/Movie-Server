@@ -9,6 +9,7 @@
 const { 
   dummyGalleries, 
   dummyMovies, 
+  dummyMovieTypes,
   dummyGames, 
   dummyGameTypes, 
   dummyGmails, 
@@ -22,6 +23,7 @@ const API_URL = process.env.NEXT_GOOGLE_SHEET_API_URL ||
 const datasetMap = {
   galleries: dummyGalleries,
   movies: dummyMovies,
+  movie_type: dummyMovieTypes,
   games: dummyGames,
   game_type: dummyGameTypes,
   gmails: dummyGmails,

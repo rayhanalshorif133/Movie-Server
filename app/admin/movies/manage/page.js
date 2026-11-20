@@ -1,6 +1,5 @@
 import Header from '@/components/admin/Header';
-import UpdateMovie from '@/components/admin/movie/UpdateMovie';
-import UploadMovie from '@/components/admin/movie/UploadMovie';
+import MovieManagement from '@/components/admin/movie/MovieManagement';
 import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +8,7 @@ export async function generateMetadata({ searchParams }) {
     const resolvedSearchParams = await searchParams;
     const isUpdate = !!resolvedSearchParams?.id;
     return {
-        title: `${isUpdate ? 'Edit Movie' : 'Publish Movie'} | Admin Panel`,
+        title: `${isUpdate ? 'Edit Movie' : 'Manage & Publish Movie'} | Admin Panel`,
     };
 }
 
@@ -31,13 +30,15 @@ export default async function page({ searchParams }) {
     return (
         <>
             <Header 
-                title={isUpdate ? `Edit Movie: ${movie?.title || 'Loading...'}` : 'Publish New Movie'} 
+                title={isUpdate ? `Edit Movie: ${movie?.title || 'Loading...'}` : 'Publish & Manage Movies'} 
                 publicURL={'/'} 
                 pageTitle={'Movies'}
             />
-            {
-                isUpdate ? <UpdateMovie movie={movie} /> : <UploadMovie />
-            }
+            <MovieManagement 
+                isUpdate={isUpdate} 
+                movie={movie} 
+                initialTab={resolvedSearchParams.tab || (isUpdate ? 'upload' : 'upload')} 
+            />
         </>
     );
 }

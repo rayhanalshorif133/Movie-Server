@@ -16,12 +16,13 @@ export default function UploadMovie() {
   const [gmailList, setGmailList] = useState([]);
   const [driveId, setDriveId] = useState('');
   const [isSeries, setIsSeries] = useState(false);
+  const [movieTypes, setMovieTypes] = useState([]);
   const inputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     title: '',
     poster: '',
-    type: 'Movie',
+    type: 'bangladeshi',
     url: '',
     size: '',
     movie_source: '',
@@ -32,6 +33,17 @@ export default function UploadMovie() {
 
   // Load registered Gmail accounts for source autocomplete suggestions
   useEffect(() => {
+    fetch('/api/movies/type')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setMovieTypes(data);
+          const firstVal = typeof data[0] === 'object' ? data[0].name : data[0];
+          setFormData(prev => ({ ...prev, type: prev.type || firstVal }));
+        }
+      })
+      .catch(err => console.warn('Could not load movie types:', err));
+
     axios.get('/api/gmails?page=0&limit=100')
       .then(res => {
         if (res.data?.data) {
@@ -378,14 +390,32 @@ export default function UploadMovie() {
               onChange={(e) => setFormData({ ...formData, type: e.target.value })}
             >
               <option value="" disabled>🎬 Select Movie Type</option>
-              <option value="bangladeshi">Bangladeshi (🇧🇩)</option>
-              <option value="kolkata-bangla">Kolkata Bangla (🇮🇳)</option>
-              <option value="hindi">Hindi (🇮🇳)</option>
-              <option value="english">English</option>
-              <option value="yousuf-zulekha">Yousuf Zulekha</option>
-              <option value="hatim">Hatim</option>
-              <option value="alif-laila">Alif Laila</option>
-              <option value="others">Others</option>
+              {movieTypes.length > 0 ? (
+                movieTypes.map((item) => {
+                  const val = typeof item === 'object' && item !== null ? item.name : item;
+                  const label = String(val)
+                    .replace(/[-_]/g, ' ')
+                    .split(' ')
+                    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                    .join(' ');
+                  return (
+                    <option key={item.id || val} value={val}>
+                      {label}
+                    </option>
+                  );
+                })
+              ) : (
+                <>
+                  <option value="bangladeshi">Bangladeshi (🇧🇩)</option>
+                  <option value="kolkata-bangla">Kolkata Bangla (🇮🇳)</option>
+                  <option value="hindi">Hindi (🇮🇳)</option>
+                  <option value="english">English</option>
+                  <option value="yousuf-zulekha">Yousuf Zulekha</option>
+                  <option value="hatim">Hatim</option>
+                  <option value="alif-laila">Alif Laila</option>
+                  <option value="others">Others</option>
+                </>
+              )}
             </select>
           </div>
 

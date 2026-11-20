@@ -4748,6 +4748,49 @@ export const dummyGameTypes = [
   }
 ];
 
+export const dummyMovieTypes = [
+  {
+    "id": "1",
+    "name": "bangladeshi",
+    "created_at": "2025-11-01 00:00:00.000000+00"
+  },
+  {
+    "id": "2",
+    "name": "kolkata-bangla",
+    "created_at": "2025-11-01 00:00:00.000000+00"
+  },
+  {
+    "id": "3",
+    "name": "hindi",
+    "created_at": "2025-11-01 00:00:00.000000+00"
+  },
+  {
+    "id": "4",
+    "name": "english",
+    "created_at": "2025-11-01 00:00:00.000000+00"
+  },
+  {
+    "id": "5",
+    "name": "yousuf-zulekha",
+    "created_at": "2025-11-01 00:00:00.000000+00"
+  },
+  {
+    "id": "6",
+    "name": "hatim",
+    "created_at": "2025-11-01 00:00:00.000000+00"
+  },
+  {
+    "id": "7",
+    "name": "alif-laila",
+    "created_at": "2025-11-01 00:00:00.000000+00"
+  },
+  {
+    "id": "8",
+    "name": "others",
+    "created_at": "2025-11-01 00:00:00.000000+00"
+  }
+];
+
 export const dummyGmails = [
   {
     "id": "1",
@@ -13885,6 +13928,7 @@ export const dbStore = {
   movies: [...dummyMovies],
   games: [...dummyGames],
   game_type: [...dummyGameTypes],
+  movie_type: [...dummyMovieTypes],
   gmails: [...dummyGmails],
   gmail_inventory: [...dummyGmailInventory],
   hitlogs: [...dummyHitlogs],

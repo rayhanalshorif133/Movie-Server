@@ -38,14 +38,15 @@ export default function MovieFilter({
 
     // Format category labels
     const formatTypeLabel = (val) => {
-        if (!val) return "";
-        const lower = val.toLowerCase();
+        const itemVal = typeof val === 'object' && val !== null ? val.name : val;
+        if (!itemVal) return "";
+        const lower = String(itemVal).toLowerCase();
         if (lower === "all") return "All Movies";
         if (lower === "kolkata-bangla") return "Kolkata Bangla";
         if (lower === "bangladeshi") return "Bangladeshi";
         if (lower === "english") return "Hollywood / English";
         if (lower === "hindi") return "Bollywood / Hindi";
-        return val
+        return String(itemVal)
             .replace(/[-_]/g, " ")
             .split(" ")
             .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
@@ -54,7 +55,8 @@ export default function MovieFilter({
 
     // Category Icons
     const getTypeIcon = (val) => {
-        const v = String(val).toLowerCase().replace(/[\s-_]/g, "");
+        const itemVal = typeof val === 'object' && val !== null ? val.name : val;
+        const v = String(itemVal).toLowerCase().replace(/[\s-_]/g, "");
         switch (v) {
             case "all":
                 return <MdLocalMovies className="text-base" />;
@@ -73,10 +75,13 @@ export default function MovieFilter({
 
     const categories = [
         { label: "All Movies", value: "all" },
-        ...types.map((t) => ({
-            label: formatTypeLabel(t),
-            value: t,
-        })),
+        ...types.map((t) => {
+            const val = typeof t === 'object' && t !== null ? t.name : t;
+            return {
+                label: formatTypeLabel(val),
+                value: val,
+            };
+        }),
     ];
 
     const hasActiveFilter = searchType !== "all" || (searchTitle && searchTitle.trim() !== "");
